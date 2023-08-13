@@ -29,7 +29,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.rest-assured:rest-assured'
-    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.6'
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 
     implementation 'com.google.guava:guava:31.1-jre'
 }
