@@ -45,4 +45,13 @@ public class SubwayTest extends AcceptanceTest {
                 .assertThat().body("stations.size()", equalTo(2))
                 .assertThat().statusCode(200);
     }
+
+    @Test
+    public void 지하철_삭제() throws Exception {
+        // given 지하철 역을 생성하고
+        stationService.createOne("강남역");
+
+        // when 그 지하철 역을 삭제하면
+        // then 그 지하철 역 목록 조회 시 생성한 역을 찾을 수 없다.
+    }
 }
