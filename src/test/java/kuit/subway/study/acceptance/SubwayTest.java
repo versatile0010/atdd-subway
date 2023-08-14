@@ -6,10 +6,12 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import kuit.subway.AcceptanceTest;
 import kuit.subway.dto.request.CreateStationRequest;
+import kuit.subway.dto.response.CreateStationResponse;
 import kuit.subway.service.StationService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 import static org.hamcrest.Matchers.equalTo;
 
@@ -49,9 +51,18 @@ public class SubwayTest extends AcceptanceTest {
     @Test
     public void 지하철_삭제() throws Exception {
         // given 지하철 역을 생성하고
-        stationService.createOne("강남역");
+        CreateStationResponse station = stationService.createOne("강남역");
 
         // when 그 지하철 역을 삭제하면
+        RestAssured.given().log().all()
+                .when().delete("/stations/{id}", String.valueOf(station.getId()))
+                .then().log().all()
+                .assertThat().statusCode(HttpStatus.OK.value());
+
         // then 그 지하철 역 목록 조회 시 생성한 역을 찾을 수 없다.
+        RestAssured.given().log().all()
+                .when().get("/stations")
+                .then().log().all()
+                .assertThat().statusCode(HttpStatus.NO_CONTENT.value());
     }
 }
