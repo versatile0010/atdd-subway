@@ -2,6 +2,7 @@ package kuit.subway.controller;
 
 import kuit.subway.dto.request.CreateStationRequest;
 import kuit.subway.dto.response.CreateStationResponse;
+import kuit.subway.dto.response.DeleteStationResponse;
 import kuit.subway.dto.response.StationListResponse;
 import kuit.subway.service.StationService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,14 @@ public class StationController {
     public ResponseEntity<StationListResponse> getStations() {
         log.info("[지하철 목록 조회 API 를 호출합니다.]");
         StationListResponse response = stationService.getStations();
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<DeleteStationResponse> deleteStation(@PathVariable("id") Long id) {
+        log.info("[지하철 삭제(id=" + id + ") API 를 호출합니다.");
+        Long deletedId = stationService.deleteStation(id);
+        DeleteStationResponse response = new DeleteStationResponse(deletedId);
         return ResponseEntity.ok(response);
     }
 }
