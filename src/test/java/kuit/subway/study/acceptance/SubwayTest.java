@@ -62,12 +62,12 @@ public class SubwayTest extends AcceptanceTest {
         RestAssured.given().log().all()
                 .when().delete(PATH + "/{id}", String.valueOf(station.getId()))
                 .then().log().all()
-                .assertThat().statusCode(HttpStatus.OK.value());
+                .assertThat().statusCode(HttpStatus.NO_CONTENT.value());
 
         // then 그 지하철 역 목록 조회 시 생성한 역을 찾을 수 없다.
         RestAssured.given().log().all()
                 .when().get(PATH)
                 .then().log().all()
-                .assertThat().statusCode(HttpStatus.NO_CONTENT.value());
+                .assertThat().statusCode(HttpStatus.OK.value());
     }
 }

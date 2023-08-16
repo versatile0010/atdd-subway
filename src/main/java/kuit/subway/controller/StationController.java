@@ -32,9 +32,6 @@ public class StationController {
     public ResponseEntity<StationListResponse> getStations() {
         log.info("[지하철 목록 조회 API 를 호출합니다.]");
         StationListResponse response = stationService.getStations();
-        if (response.getStations().isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
         return ResponseEntity.ok(response);
     }
 
