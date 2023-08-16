@@ -29,7 +29,7 @@ public class StationService {
     public StationListResponse getStations() {
         List<Station> savedStations = stationRepository.findAll();
         List<StationDto> stations = savedStations.stream().map(
-                StationDto::new
+                StationDto::from
         ).toList();
         return new StationListResponse(stations);
     }

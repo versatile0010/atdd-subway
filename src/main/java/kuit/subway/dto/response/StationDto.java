@@ -16,4 +16,8 @@ public class StationDto {
         this.id = station.getId();
         this.name = station.getName();
     }
+
+    public static StationDto from(Station station) {
+        return new StationDto(station);
+    }
 }
