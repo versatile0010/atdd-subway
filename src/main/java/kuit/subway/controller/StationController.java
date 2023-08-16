@@ -7,6 +7,7 @@ import kuit.subway.dto.response.StationListResponse;
 import kuit.subway.service.StationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,8 @@ public class StationController {
         log.info("[지하철 삭제(id=" + id + ") API 를 호출합니다.");
         Long deletedId = stationService.deleteStation(id);
         DeleteStationResponse response = new DeleteStationResponse(deletedId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(response);
     }
 }
