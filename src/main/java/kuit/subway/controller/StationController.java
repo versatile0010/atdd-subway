@@ -1,5 +1,6 @@
 package kuit.subway.controller;
 
+import jakarta.validation.Valid;
 import kuit.subway.dto.request.CreateStationRequest;
 import kuit.subway.dto.response.CreateStationResponse;
 import kuit.subway.dto.response.DeleteStationResponse;
@@ -20,7 +21,7 @@ public class StationController {
 
     @PostMapping
     public ResponseEntity<CreateStationResponse> createStation(
-            @RequestBody CreateStationRequest request
+            @RequestBody @Valid CreateStationRequest request
     ) {
         String name = request.getName();
         log.info("[지하철 " + name + " 역 생성 API 를 호출합니다.]");
