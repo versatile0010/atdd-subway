@@ -58,4 +58,21 @@ public class SubwayTest extends AcceptanceTest {
         int 응답_코드 = extract.statusCode();
         Assertions.assertEquals(HttpStatus.OK.value(), 응답_코드);
     }
+
+    @Description("올바르지 않은 이름으로 지하철 역 생성 요청 시, 거절되어야 한다.")
+    @Test
+    public void 올바르지_않은_이름으로_지하철_역_생성() {
+        // given 최소 길이보다 짧거나 최대 길이보다 긴 이름의 지하철 역 데이터로
+        CreateStationRequest 최소길이보다_짧은_이름의_지하철역 = 지하철_역_생성_데이터("강역");
+        CreateStationRequest 최대길이보다_긴_이름의_지하철역 = 지하철_역_생성_데이터("123456789.123456789.123456789");
+        // when 지하철 역 생성 요청 시
+        ExtractableResponse<Response> extract1 = 지하철_역_생성하기(최소길이보다_짧은_이름의_지하철역);
+        ExtractableResponse<Response> extract2 = 지하철_역_생성하기(최대길이보다_긴_이름의_지하철역);
+        // then 거절되어야 하고, 지하철 역 목록에 반영되면 안된다.
+        extract1.response().then().log().all()
+                .assertThat().statusCode(400);
+        extract2.response().then().log().all()
+                .assertThat().statusCode(400);
+        지하철_역_목록_조회하기();
+    }
 }
