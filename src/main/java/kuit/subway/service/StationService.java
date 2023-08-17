@@ -4,6 +4,7 @@ import kuit.subway.domain.Station;
 import kuit.subway.dto.response.CreateStationResponse;
 import kuit.subway.dto.response.StationDto;
 import kuit.subway.dto.response.StationListResponse;
+import kuit.subway.exception.badrequest.DuplicatedStationNameException;
 import kuit.subway.exception.notfound.NotFoundStationException;
 import kuit.subway.repository.StationRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class StationService {
 
     @Transactional
     public CreateStationResponse createOne(String name) {
+        validateDuplicatedName(name);
         Station savedStation = stationRepository.save(
                 Station.builder()
                         .name(name)
@@ -41,5 +43,10 @@ public class StationService {
                 .orElseThrow(NotFoundStationException::new);
         stationRepository.delete(station);
         return id;
+    }
+
+    public void validateDuplicatedName(String name){
+        if(stationRepository.existsByName(name))
+            throw new DuplicatedStationNameException();
     }
 }
