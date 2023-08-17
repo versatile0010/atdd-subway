@@ -6,13 +6,27 @@ import kuit.subway.exception.SubwayException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestControllerAdvice
 public class ControllerAdvice {
+    private final int INVALID_INPUT_VALUE = 400;
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleInputFieldException(MethodArgumentNotValidException e) {
+        FieldError mainError = e.getFieldErrors().get(0);
+        String[] errorInfo = Objects.requireNonNull(mainError.getDefaultMessage()).split(":");
+        String message = errorInfo[0];
+        return ResponseEntity.badRequest().body(new ErrorResponse(INVALID_INPUT_VALUE, message));
+    }
+
     @ExceptionHandler(SubwayException.class)
     public ResponseEntity<ErrorResponse> handleSubwayException(SubwayException e) {
         return ResponseEntity.status(e.getHttpStatus()).body(new ErrorResponse(e.getCode(), e.getMessage()));
