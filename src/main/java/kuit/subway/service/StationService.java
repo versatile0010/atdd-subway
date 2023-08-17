@@ -4,6 +4,7 @@ import kuit.subway.domain.Station;
 import kuit.subway.dto.response.CreateStationResponse;
 import kuit.subway.dto.response.StationDto;
 import kuit.subway.dto.response.StationListResponse;
+import kuit.subway.exception.notfound.NotFoundStationException;
 import kuit.subway.repository.StationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ public class StationService {
     @Transactional
     public Long deleteStation(Long id) {
         Station station = stationRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 지하철 역을 찾을 수 없습니다."));
+                .orElseThrow(NotFoundStationException::new);
         stationRepository.delete(station);
         return id;
     }
