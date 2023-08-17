@@ -75,4 +75,19 @@ public class SubwayTest extends AcceptanceTest {
                 .assertThat().statusCode(400);
         지하철_역_목록_조회하기();
     }
+
+    @Description("이미 존재하는 이름으로 지하철 역 생성 요청 시, 거절되어야 한다.")
+    @Test
+    public void 이미존재하는_이름으로_지하철역_생성 () {
+        // given "강남역" 지하철역이 이미 존재할 때
+        CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
+        지하철_역_생성하기(강남역_데이터);
+        // when "강남역" 이름으로 지하철 역을 생성하려고 하면
+        ExtractableResponse<Response> extract = 지하철_역_생성하기(강남역_데이터);
+        // then 거절되어야 하고, 지하철 역 목록에 반영되면 안된다.
+        extract.response().then().log().all()
+                .assertThat().statusCode(400);
+        지하철_역_목록_조회하기();
+    }
+
 }
