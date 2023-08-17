@@ -26,7 +26,7 @@ public class SubwayTest extends AcceptanceTest {
         Assertions.assertEquals(HttpStatus.OK.value(), extract.statusCode());
     }
 
-    @Description("지하철 목록 조회 API 인수 테스트")
+    @Description("생성된 지하철 역 목록이 올바르게 조회되어야 한다.")
     @Test
     public void 지하철_목록_조회() {
         // given Given 2개의 지하철역을 생성하고
@@ -44,7 +44,7 @@ public class SubwayTest extends AcceptanceTest {
                 .assertThat().statusCode(HttpStatus.OK.value());
     }
 
-    @Description("지하철 삭제 API 인수 테스트")
+    @Description("생성된 지하철 역에 대한 삭제 요청 시, 해당 지하철 역은 목록에서 제거되어야 한다.")
     @Test
     public void 지하철_삭제() {
         // given 지하철 역을 생성하고
