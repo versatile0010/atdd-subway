@@ -28,7 +28,7 @@ public class SubwayTest extends AcceptanceTest {
 
     @Description("생성된 지하철 역 목록이 올바르게 조회되어야 한다.")
     @Test
-    public void 지하철_목록_조회() {
+    public void 지하철_목록_조회_테스트 () {
         // given Given 2개의 지하철역을 생성하고
         CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
         CreateStationRequest 서초역_데이터 = 지하철_역_생성_데이터("서초역");
@@ -46,7 +46,7 @@ public class SubwayTest extends AcceptanceTest {
 
     @Description("생성된 지하철 역에 대한 삭제 요청 시, 해당 지하철 역은 목록에서 제거되어야 한다.")
     @Test
-    public void 지하철_삭제() {
+    public void 지하철_삭제_테스트 () {
         // given 지하철 역을 생성하고
         CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
         지하철_역_생성하기(강남역_데이터);
@@ -61,7 +61,7 @@ public class SubwayTest extends AcceptanceTest {
 
     @Description("올바르지 않은 이름으로 지하철 역 생성 요청 시, 거절되어야 한다.")
     @Test
-    public void 올바르지_않은_이름으로_지하철_역_생성() {
+    public void 올바르지_않은_이름으로_지하철_역_생성_테스트 () {
         // given 최소 길이보다 짧거나 최대 길이보다 긴 이름의 지하철 역 데이터로
         CreateStationRequest 최소길이보다_짧은_이름의_지하철역 = 지하철_역_생성_데이터("강역");
         CreateStationRequest 최대길이보다_긴_이름의_지하철역 = 지하철_역_생성_데이터("123456789.123456789.123456789");
@@ -78,7 +78,7 @@ public class SubwayTest extends AcceptanceTest {
 
     @Description("이미 존재하는 이름으로 지하철 역 생성 요청 시, 거절되어야 한다.")
     @Test
-    public void 이미존재하는_이름으로_지하철역_생성 () {
+    public void 이미존재하는_이름으로_지하철역_생성_테스트 () {
         // given "강남역" 지하철역이 이미 존재할 때
         CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
         지하철_역_생성하기(강남역_데이터);
