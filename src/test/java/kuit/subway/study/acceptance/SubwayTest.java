@@ -208,6 +208,6 @@ public class SubwayTest extends AcceptanceTest {
         ExtractableResponse<Response> extract = 지하철_노선_조회하기(노선_아이디);
         // then 거절되어야 한다.
         extract.response().then().log().all()
-                .assertThat().statusCode(HttpStatus.BAD_REQUEST.value());
+                .assertThat().statusCode(HttpStatus.NOT_FOUND.value());
     }
 }
