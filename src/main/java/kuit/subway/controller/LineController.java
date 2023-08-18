@@ -2,8 +2,10 @@ package kuit.subway.controller;
 
 import jakarta.validation.Valid;
 import kuit.subway.dto.request.CreateLineRequest;
+import kuit.subway.dto.request.ModifyLineRequest;
 import kuit.subway.dto.response.CreateLineResponse;
 import kuit.subway.dto.response.LineInfoResponse;
+import kuit.subway.dto.response.ModifyLineResponse;
 import kuit.subway.service.LineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,5 +34,15 @@ public class LineController {
     public ResponseEntity<LineInfoResponse> getLineInfo(@PathVariable("id") Long id) {
         log.info("노선{id=" + id + "} 조회 API 를 호출합니다.");
         return ResponseEntity.ok(lineService.getLineDetails(id));
+    }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<ModifyLineResponse> modifyLine(
+            @PathVariable("id") Long id,
+            @RequestBody @Valid ModifyLineRequest request) {
+        log.info("노선{id=" + id + "} 수정 API 를 호출합니다.");
+        ModifyLineResponse response = lineService.updateLine(request, id);
+        return ResponseEntity.created(
+                URI.create("/lines/" + response.getId())).body(response);
     }
 }

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "LINE")
-public class Line extends BaseTimeEntity{
+public class Line extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,5 +36,25 @@ public class Line extends BaseTimeEntity{
         if (downStationId == upStationId) {
             throw new InvalidCreateLineException();
         }
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDistance(int distance) {
+        this.distance = distance;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public void setDownStationId(Long downStationId) {
+        this.downStationId = downStationId;
+    }
+
+    public void setUpStationId(Long upStationId) {
+        this.upStationId = upStationId;
     }
 }
