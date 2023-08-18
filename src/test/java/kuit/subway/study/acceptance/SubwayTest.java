@@ -7,13 +7,13 @@ import jdk.jfr.Description;
 import kuit.subway.AcceptanceTest;
 import kuit.subway.dto.request.CreateLineRequest;
 import kuit.subway.dto.request.CreateStationRequest;
+import kuit.subway.dto.request.ModifyLineRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import static kuit.subway.study.acceptance.AcceptanceFixture.*;
-import static kuit.subway.study.acceptance.StationFixData.지하철_노선_생성_데이터;
-import static kuit.subway.study.acceptance.StationFixData.지하철_역_생성_데이터;
+import static kuit.subway.study.acceptance.StationFixData.*;
 import static org.hamcrest.Matchers.equalTo;
 
 public class SubwayTest extends AcceptanceTest {
@@ -207,6 +207,62 @@ public class SubwayTest extends AcceptanceTest {
         Long 노선_아이디 = 1L;
         ExtractableResponse<Response> extract = 지하철_노선_조회하기(노선_아이디);
         // then 거절되어야 한다.
+        extract.response().then().log().all()
+                .assertThat().statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Description("올바른 요청으로 노선을 수정 요청한 경우, 노선 정보가 올바르게 수정되어야 한다.")
+    @Test
+    public void 지하철_노선_수정_테스트() {
+        // given 2 개의 지하철 역으로 이루어진 하나의 노선을 생성하고
+        CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
+        지하철_역_생성하기(강남역_데이터);
+        Long 강남역_아이디 = 1L;
+
+        CreateStationRequest 서초역_데이터 = 지하철_역_생성_데이터("서초역");
+        지하철_역_생성하기(서초역_데이터);
+        Long 서초역_아이디 = 2L;
+
+        CreateLineRequest 이호선_데이터 = 지하철_노선_생성_데이터("이호선", "green", 10, 강남역_아이디, 서초역_아이디);
+        지하철_노선_생성하기(이호선_데이터);
+        // when 해당 지하철 노선을 수정하려고 요청하면
+        CreateStationRequest 어린이대공원역_데이터 = 지하철_역_생성_데이터("어린이대공원역");
+        지하철_역_생성하기(어린이대공원역_데이터);
+        Long 어린이대공원역_아이디 = 3L;
+
+        CreateStationRequest 건대입구역_데이터 = 지하철_역_생성_데이터("건대입구역");
+        지하철_역_생성하기(건대입구역_데이터);
+        Long 건대입구역_아이디 = 4L;
+
+        ModifyLineRequest 노선_수정_데이터 = 지하철_노선_수정_데이터("경춘선", "red", 99, 어린이대공원역_아이디, 건대입구역_아이디);
+        ExtractableResponse<Response> extract = 지하철_노선_수정하기(노선_수정_데이터, 1L);
+
+        // 수정되어야 한다.
+        extract.response().then().log().all()
+                .assertThat().statusCode(HttpStatus.CREATED.value());
+        지하철_노선_조회하기(1L);
+    }
+
+    @Description("존재하지 않는 노선을 수정 요청한 경우, 거절되어야 한다.")
+    @Test
+    public void 존재하지_않는_지하철_노선_수정_테스트() {
+        // given 2 개의 지하철 역으로 이루어진 하나의 노선을 생성하고
+        CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
+        지하철_역_생성하기(강남역_데이터);
+        Long 강남역_아이디 = 1L;
+
+        CreateStationRequest 서초역_데이터 = 지하철_역_생성_데이터("서초역");
+        지하철_역_생성하기(서초역_데이터);
+        Long 서초역_아이디 = 2L;
+
+        CreateLineRequest 이호선_데이터 = 지하철_노선_생성_데이터("이호선", "green", 10, 강남역_아이디, 서초역_아이디);
+        지하철_노선_생성하기(이호선_데이터);
+        // when 존재하지 않는 다른 노선을 수정하려고 요청하면
+
+        ModifyLineRequest 노선_수정_데이터 = 지하철_노선_수정_데이터("경춘선", "red", 99, 강남역_아이디, 서초역_아이디);
+        ExtractableResponse<Response> extract = 지하철_노선_수정하기(노선_수정_데이터, 99L);
+
+        // 거절되어야 한다.
         extract.response().then().log().all()
                 .assertThat().statusCode(HttpStatus.NOT_FOUND.value());
     }

@@ -6,6 +6,7 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import kuit.subway.dto.request.CreateLineRequest;
 import kuit.subway.dto.request.CreateStationRequest;
+import kuit.subway.dto.request.ModifyLineRequest;
 
 public class AcceptanceFixture {
     private static final String STATION_PATH = "/stations";
@@ -32,6 +33,7 @@ public class AcceptanceFixture {
                 .then().log().all()
                 .extract();
     }
+
     public static ExtractableResponse<Response> 지하철_노선_생성하기(CreateLineRequest request) {
         return RestAssured.given().log().all()
                 .body(request).contentType(ContentType.JSON)
@@ -43,6 +45,14 @@ public class AcceptanceFixture {
     public static ExtractableResponse<Response> 지하철_노선_조회하기(Long 지하철_노선_아이디) {
         return RestAssured.given().log().all()
                 .when().get(LINE_PATH + "/{id}", 지하철_노선_아이디)
+                .then().log().all()
+                .extract();
+    }
+
+    public static ExtractableResponse<Response> 지하철_노선_수정하기(ModifyLineRequest request, Long 지하철_노선_아이디) {
+        return RestAssured.given().log().all()
+                .body(request).contentType(ContentType.JSON)
+                .when().post(LINE_PATH + "/{id}", 지하철_노선_아이디)
                 .then().log().all()
                 .extract();
     }
