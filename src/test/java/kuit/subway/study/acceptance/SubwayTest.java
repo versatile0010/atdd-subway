@@ -18,6 +18,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class SubwayTest extends AcceptanceTest {
     private final int INVALID_INPUT_STATUS_CODE = 400;
+
     @Description("올바른 이름 요청 시 지하철 역이 정상적으로 생성되어야 한다.")
     @Test
     public void 지하철_역_생성_테스트() {
@@ -169,12 +170,44 @@ public class SubwayTest extends AcceptanceTest {
         Long 서초역_아이디 = 2L;
 
         CreateLineRequest 이호선_데이터 = 지하철_노선_생성_데이터("짧음", "green", 10, 강남역_아이디, 서초역_아이디);
-        지하철_노선_생성하기(이호선_데이터);
 
         // when 동일한 이름의 노선으로 생성 요청을 보내면
         ExtractableResponse<Response> extract = 지하철_노선_생성하기(이호선_데이터);
         // then 거절되어야 한다.
         extract.response().then().log().all()
                 .assertThat().statusCode(INVALID_INPUT_STATUS_CODE);
+    }
+
+    @Description("올바른 요청으로 노선을 조회한 경우, 노선 정보가 올바르게 조회되어야 한다.")
+    @Test
+    public void 지하철_노선_조회_테스트() {
+        // given 2 개의 지하철 역으로 이루어진 하나의 노선을 생성하고
+        CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
+        지하철_역_생성하기(강남역_데이터);
+        Long 강남역_아이디 = 1L;
+
+        CreateStationRequest 서초역_데이터 = 지하철_역_생성_데이터("서초역");
+        지하철_역_생성하기(서초역_데이터);
+        Long 서초역_아이디 = 2L;
+
+        CreateLineRequest 이호선_데이터 = 지하철_노선_생성_데이터("짧음", "green", 10, 강남역_아이디, 서초역_아이디);
+        지하철_노선_생성하기(이호선_데이터);
+        // when 해당 지하철 노선을 조회하면
+        Long 이호선_아이디 = 1L;
+        ExtractableResponse<Response> extract = 지하철_노선_조회하기(이호선_아이디);
+        // then 잘 조회되어야 한다.
+        extract.response().then().log().all()
+                .assertThat().statusCode(HttpStatus.OK.value());
+    }
+
+    @Description("존재하지 않는 노선을 조회하려고 하는 경우, 거절되어야 한다.")
+    @Test
+    public void 존재하지_않는_지하철_노선_조회_테스트() {
+        // given & when 존재하지 않는 노선을 조회하려 하면
+        Long 노선_아이디 = 1L;
+        ExtractableResponse<Response> extract = 지하철_노선_조회하기(노선_아이디);
+        // then 거절되어야 한다.
+        extract.response().then().log().all()
+                .assertThat().statusCode(HttpStatus.BAD_REQUEST.value());
     }
 }
