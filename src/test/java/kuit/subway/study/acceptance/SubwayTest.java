@@ -17,6 +17,7 @@ import static kuit.subway.study.acceptance.StationFixData.지하철_역_생성_�
 import static org.hamcrest.Matchers.equalTo;
 
 public class SubwayTest extends AcceptanceTest {
+    private final int INVALID_INPUT_STATUS_CODE = 400;
     @Description("올바른 이름 요청 시 지하철 역이 정상적으로 생성되어야 한다.")
     @Test
     public void 지하철_역_생성_테스트() {
@@ -72,9 +73,9 @@ public class SubwayTest extends AcceptanceTest {
         ExtractableResponse<Response> extract2 = 지하철_역_생성하기(최대길이보다_긴_이름의_지하철역);
         // then 거절되어야 하고, 지하철 역 목록에 반영되면 안된다.
         extract1.response().then().log().all()
-                .assertThat().statusCode(400);
+                .assertThat().statusCode(INVALID_INPUT_STATUS_CODE);
         extract2.response().then().log().all()
-                .assertThat().statusCode(400);
+                .assertThat().statusCode(INVALID_INPUT_STATUS_CODE);
         지하철_역_목록_조회하기();
     }
 
@@ -88,7 +89,7 @@ public class SubwayTest extends AcceptanceTest {
         ExtractableResponse<Response> extract = 지하철_역_생성하기(강남역_데이터);
         // then 거절되어야 하고, 지하철 역 목록에 반영되면 안된다.
         extract.response().then().log().all()
-                .assertThat().statusCode(400);
+                .assertThat().statusCode(INVALID_INPUT_STATUS_CODE);
         지하철_역_목록_조회하기();
     }
 
@@ -174,6 +175,6 @@ public class SubwayTest extends AcceptanceTest {
         ExtractableResponse<Response> extract = 지하철_노선_생성하기(이호선_데이터);
         // then 거절되어야 한다.
         extract.response().then().log().all()
-                .assertThat().statusCode(400);
+                .assertThat().statusCode(INVALID_INPUT_STATUS_CODE);
     }
 }
