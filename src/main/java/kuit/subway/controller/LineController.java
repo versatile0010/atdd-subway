@@ -4,11 +4,13 @@ import jakarta.validation.Valid;
 import kuit.subway.dto.request.CreateLineRequest;
 import kuit.subway.dto.request.ModifyLineRequest;
 import kuit.subway.dto.response.CreateLineResponse;
+import kuit.subway.dto.response.DeleteLineResponse;
 import kuit.subway.dto.response.LineInfoResponse;
 import kuit.subway.dto.response.ModifyLineResponse;
 import kuit.subway.service.LineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,4 +47,14 @@ public class LineController {
         return ResponseEntity.created(
                 URI.create("/lines/" + response.getId())).body(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<DeleteLineResponse> deleteLine(@PathVariable("id") Long id) {
+        log.info("노선{id=" + id + "} 삭제 API 를 호출합니다.");
+        DeleteLineResponse response = lineService.deleteLine(id);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(response);
+    }
+
 }

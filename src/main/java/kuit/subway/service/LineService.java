@@ -3,10 +3,7 @@ package kuit.subway.service;
 import kuit.subway.domain.Line;
 import kuit.subway.dto.request.CreateLineRequest;
 import kuit.subway.dto.request.ModifyLineRequest;
-import kuit.subway.dto.response.CreateLineResponse;
-import kuit.subway.dto.response.LineInfoResponse;
-import kuit.subway.dto.response.ModifyLineResponse;
-import kuit.subway.dto.response.StationDto;
+import kuit.subway.dto.response.*;
 import kuit.subway.exception.badrequest.DuplicatedLineNameException;
 import kuit.subway.exception.notfound.NotFoundLineException;
 import kuit.subway.repository.LineRepository;
@@ -55,8 +52,9 @@ public class LineService {
                 stationService.getStationPair(line.getDownStationId(), line.getUpStationId());
         return LineInfoResponse.from(line, stations);
     }
+
     @Transactional
-    public ModifyLineResponse updateLine(ModifyLineRequest request, Long id){
+    public ModifyLineResponse updateLine(ModifyLineRequest request, Long id) {
         Line line = lineRepository.findById(id)
                 .orElseThrow(NotFoundLineException::new);
         line.setColor(request.getColor());
@@ -65,5 +63,13 @@ public class LineService {
         line.setDownStationId(request.getDownStationId());
         line.setUpStationId(request.getUpStationId());
         return ModifyLineResponse.from(line);
+    }
+
+    @Transactional
+    public DeleteLineResponse deleteLine(Long id) {
+        Line line = lineRepository.findById(id)
+                .orElseThrow(NotFoundLineException::new);
+        lineRepository.delete(line);
+        return new DeleteLineResponse(id);
     }
 }
