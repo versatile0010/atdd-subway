@@ -56,10 +56,12 @@ public class SubwayTest extends AcceptanceTest {
         지하철_역_생성하기(강남역_데이터);
         // when 그 지하철 역을 삭제하면
         Long 강남역_아이디 = 1L;
-        지하철_역_삭제하기(강남역_아이디);
+        ExtractableResponse<Response> extract1 = 지하철_역_삭제하기(강남역_아이디);
+        extract1.response().then().log().all()
+                .assertThat().statusCode(HttpStatus.NO_CONTENT.value());
         // then 그 지하철 역 목록 조회 시 생성한 역을 찾을 수 없다.
-        ExtractableResponse<Response> extract = 지하철_역_목록_조회하기();
-        int 응답_코드 = extract.statusCode();
+        ExtractableResponse<Response> extract2 = 지하철_역_목록_조회하기();
+        int 응답_코드 = extract2.statusCode();
         Assertions.assertEquals(HttpStatus.OK.value(), 응답_코드);
     }
 
@@ -264,6 +266,53 @@ public class SubwayTest extends AcceptanceTest {
 
         // 거절되어야 한다.
         extract.response().then().log().all()
+                .assertThat().statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Description("존재하는 노선을 삭제 요청한 경우, 삭제되어야 한다.")
+    @Test
+    public void 지하철_노선_삭제_테스트() {
+        // given 2 개의 지하철 역으로 이루어진 하나의 노선을 생성하고
+        CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
+        지하철_역_생성하기(강남역_데이터);
+        Long 강남역_아이디 = 1L;
+
+        CreateStationRequest 서초역_데이터 = 지하철_역_생성_데이터("서초역");
+        지하철_역_생성하기(서초역_데이터);
+        Long 서초역_아이디 = 2L;
+
+        CreateLineRequest 이호선_데이터 = 지하철_노선_생성_데이터("이호선", "green", 10, 강남역_아이디, 서초역_아이디);
+        지하철_노선_생성하기(이호선_데이터);
+        // when 해당 노선을 삭제 요청 시
+        Long 이호선_아이디 = 1L;
+        ExtractableResponse<Response> extract1 = 지하철_노선_삭제하기(이호선_아이디);
+        // then 삭제 되어야 하고, 해당 노선 정보 조회 요청은 거절되어야 한다.
+        extract1.response().then().log().all()
+                .assertThat().statusCode(HttpStatus.NO_CONTENT.value());
+
+        ExtractableResponse<Response> extract2 = 지하철_노선_조회하기(이호선_아이디);
+        extract2.response().then().log().all()
+                .assertThat().statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Description("존재하지 않는 노선을 삭제 요청한 경우, 거절되어야 한다.")
+    @Test
+    public void 존재하지_않는_지하철_노선_삭제_테스트() {
+        // given 2 개의 지하철 역으로 이루어진 하나의 노선을 생성하고
+        CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
+        지하철_역_생성하기(강남역_데이터);
+        Long 강남역_아이디 = 1L;
+
+        CreateStationRequest 서초역_데이터 = 지하철_역_생성_데이터("서초역");
+        지하철_역_생성하기(서초역_데이터);
+        Long 서초역_아이디 = 2L;
+
+        CreateLineRequest 이호선_데이터 = 지하철_노선_생성_데이터("이호선", "green", 10, 강남역_아이디, 서초역_아이디);
+        지하철_노선_생성하기(이호선_데이터);
+        // when 존재하지 않는 지하철 노선을 삭제 요청 시
+        ExtractableResponse<Response> extract1 = 지하철_노선_삭제하기(99L);
+        // then 거절되어야 한다.
+        extract1.response().then().log().all()
                 .assertThat().statusCode(HttpStatus.NOT_FOUND.value());
     }
 }
