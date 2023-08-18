@@ -5,12 +5,14 @@ import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import jdk.jfr.Description;
 import kuit.subway.AcceptanceTest;
+import kuit.subway.dto.request.CreateLineRequest;
 import kuit.subway.dto.request.CreateStationRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import static kuit.subway.study.acceptance.AcceptanceFixture.*;
+import static kuit.subway.study.acceptance.StationFixData.지하철_노선_생성_데이터;
 import static kuit.subway.study.acceptance.StationFixData.지하철_역_생성_데이터;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -28,7 +30,7 @@ public class SubwayTest extends AcceptanceTest {
 
     @Description("생성된 지하철 역 목록이 올바르게 조회되어야 한다.")
     @Test
-    public void 지하철_목록_조회_테스트 () {
+    public void 지하철_목록_조회_테스트() {
         // given Given 2개의 지하철역을 생성하고
         CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
         CreateStationRequest 서초역_데이터 = 지하철_역_생성_데이터("서초역");
@@ -46,12 +48,12 @@ public class SubwayTest extends AcceptanceTest {
 
     @Description("생성된 지하철 역에 대한 삭제 요청 시, 해당 지하철 역은 목록에서 제거되어야 한다.")
     @Test
-    public void 지하철_삭제_테스트 () {
+    public void 지하철_삭제_테스트() {
         // given 지하철 역을 생성하고
         CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
         지하철_역_생성하기(강남역_데이터);
         // when 그 지하철 역을 삭제하면
-        int 강남역_아이디 = 1;
+        Long 강남역_아이디 = 1L;
         지하철_역_삭제하기(강남역_아이디);
         // then 그 지하철 역 목록 조회 시 생성한 역을 찾을 수 없다.
         ExtractableResponse<Response> extract = 지하철_역_목록_조회하기();
@@ -61,7 +63,7 @@ public class SubwayTest extends AcceptanceTest {
 
     @Description("올바르지 않은 이름으로 지하철 역 생성 요청 시, 거절되어야 한다.")
     @Test
-    public void 올바르지_않은_이름으로_지하철_역_생성_테스트 () {
+    public void 올바르지_않은_이름으로_지하철_역_생성_테스트() {
         // given 최소 길이보다 짧거나 최대 길이보다 긴 이름의 지하철 역 데이터로
         CreateStationRequest 최소길이보다_짧은_이름의_지하철역 = 지하철_역_생성_데이터("강역");
         CreateStationRequest 최대길이보다_긴_이름의_지하철역 = 지하철_역_생성_데이터("123456789.123456789.123456789");
@@ -78,7 +80,7 @@ public class SubwayTest extends AcceptanceTest {
 
     @Description("이미 존재하는 이름으로 지하철 역 생성 요청 시, 거절되어야 한다.")
     @Test
-    public void 이미존재하는_이름으로_지하철역_생성_테스트 () {
+    public void 이미존재하는_이름으로_지하철역_생성_테스트() {
         // given "강남역" 지하철역이 이미 존재할 때
         CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
         지하철_역_생성하기(강남역_데이터);
@@ -89,13 +91,89 @@ public class SubwayTest extends AcceptanceTest {
                 .assertThat().statusCode(400);
         지하철_역_목록_조회하기();
     }
+
     @Description("지하철 노선 요청이 올바르면, 노선이 생성되어야 한다.")
     @Test
-    public void 지하철_노선_생성_테스트 (){
+    public void 지하철_노선_생성_테스트() {
         // given 2개의 지하철 역을 생성하고
+        CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
+        지하철_역_생성하기(강남역_데이터);
+        Long 강남역_아이디 = 1L;
 
+        CreateStationRequest 서초역_데이터 = 지하철_역_생성_데이터("서초역");
+        지하철_역_생성하기(서초역_데이터);
+        Long 서초역_아이디 = 2L;
         // when 새로운 노선에 상행 종점역과 하행 종점역으로 요청을 보내면
+        CreateLineRequest 이호선_데이터 = 지하철_노선_생성_데이터("2호선", "green", 10, 강남역_아이디, 서초역_아이디);
+        ExtractableResponse<Response> extract = 지하철_노선_생성하기(이호선_데이터);
 
         // then 생성된 노선의 Id 를 응답으로 받는다.
+        extract.response().then().log().all()
+                .assertThat().statusCode(HttpStatus.CREATED.value())
+                .assertThat().body("id", equalTo(1));
+    }
+
+    @Description("동일한 지하철 역으로 노선 생성 시도 시, 거절되어야 한다.")
+    @Test
+    public void 동일_역에_대한_지하철_노선_생성_테스트() {
+        // given 2개의 지하철 역을 생성하고
+        CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
+        지하철_역_생성하기(강남역_데이터);
+        Long 강남역_아이디 = 1L;
+
+        CreateStationRequest 서초역_데이터 = 지하철_역_생성_데이터("서초역");
+        지하철_역_생성하기(서초역_데이터);
+        Long 서초역_아이디 = 1L;
+        // when 상행 종점역과 하행 종점역을 같은 역으로 노선 생성 요청을 보내면
+        CreateLineRequest 이호선_데이터 = 지하철_노선_생성_데이터("2호선", "green", 10, 강남역_아이디, 서초역_아이디);
+        ExtractableResponse<Response> extract = 지하철_노선_생성하기(이호선_데이터);
+
+        // then 거절되어야 한다.
+        extract.response().then().log().all()
+                .assertThat().statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Description("중복된 지하철 노선 이름으로 생성 요청 시, 거절되어야 한다.")
+    @Test
+    public void 중복된_지하철_노선_생성_테스트() {
+        // given 2개의 지하철 역을 생성하고 하나의 노선을 만든다.
+        CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
+        지하철_역_생성하기(강남역_데이터);
+        Long 강남역_아이디 = 1L;
+
+        CreateStationRequest 서초역_데이터 = 지하철_역_생성_데이터("서초역");
+        지하철_역_생성하기(서초역_데이터);
+        Long 서초역_아이디 = 2L;
+
+        CreateLineRequest 이호선_데이터 = 지하철_노선_생성_데이터("2호선", "green", 10, 강남역_아이디, 서초역_아이디);
+        지하철_노선_생성하기(이호선_데이터);
+
+        // when 동일한 이름의 노선으로 생성 요청을 보내면
+        ExtractableResponse<Response> extract = 지하철_노선_생성하기(이호선_데이터);
+        // then 거절되어야 한다.
+        extract.response().then().log().all()
+                .assertThat().statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Description("올바르지 않은 이름으로 노선 생성 요청 시, 거절되어야 한다.")
+    @Test
+    public void 올바르지않은_이름으로_지하철_노선_생성_테스트() {
+        // given 2개의 지하철 역을 생성하고 하나의 노선을 만든다.
+        CreateStationRequest 강남역_데이터 = 지하철_역_생성_데이터("강남역");
+        지하철_역_생성하기(강남역_데이터);
+        Long 강남역_아이디 = 1L;
+
+        CreateStationRequest 서초역_데이터 = 지하철_역_생성_데이터("서초역");
+        지하철_역_생성하기(서초역_데이터);
+        Long 서초역_아이디 = 2L;
+
+        CreateLineRequest 이호선_데이터 = 지하철_노선_생성_데이터("짧음", "green", 10, 강남역_아이디, 서초역_아이디);
+        지하철_노선_생성하기(이호선_데이터);
+
+        // when 동일한 이름의 노선으로 생성 요청을 보내면
+        ExtractableResponse<Response> extract = 지하철_노선_생성하기(이호선_데이터);
+        // then 거절되어야 한다.
+        extract.response().then().log().all()
+                .assertThat().statusCode(400);
     }
 }
