@@ -89,5 +89,13 @@ public class SubwayTest extends AcceptanceTest {
                 .assertThat().statusCode(400);
         지하철_역_목록_조회하기();
     }
+    @Description("지하철 노선 요청이 올바르면, 노선이 생성되어야 한다.")
+    @Test
+    public void 지하철_노선_생성_테스트 (){
+        // given 2개의 지하철 역을 생성하고
 
+        // when 새로운 노선에 상행 종점역과 하행 종점역으로 요청을 보내면
+
+        // then 생성된 노선의 Id 를 응답으로 받는다.
+    }
 }
