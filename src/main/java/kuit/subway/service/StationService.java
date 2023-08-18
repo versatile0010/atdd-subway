@@ -49,4 +49,9 @@ public class StationService {
         if(stationRepository.existsByName(name))
             throw new DuplicatedStationNameException();
     }
+
+    public void validateInvalidStationId(Long id){
+        stationRepository.findById(id)
+                .orElseThrow(NotFoundStationException::new);
+    }
 }
