@@ -190,7 +190,7 @@ public class SubwayTest extends AcceptanceTest {
         지하철_역_생성하기(서초역_데이터);
         Long 서초역_아이디 = 2L;
 
-        CreateLineRequest 이호선_데이터 = 지하철_노선_생성_데이터("짧음", "green", 10, 강남역_아이디, 서초역_아이디);
+        CreateLineRequest 이호선_데이터 = 지하철_노선_생성_데이터("이호선", "green", 10, 강남역_아이디, 서초역_아이디);
         지하철_노선_생성하기(이호선_데이터);
         // when 해당 지하철 노선을 조회하면
         Long 이호선_아이디 = 1L;
