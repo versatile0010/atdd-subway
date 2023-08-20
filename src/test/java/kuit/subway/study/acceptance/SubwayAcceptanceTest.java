@@ -16,7 +16,7 @@ import static kuit.subway.study.acceptance.AcceptanceFixture.*;
 import static kuit.subway.study.acceptance.StationFixData.*;
 import static org.hamcrest.Matchers.equalTo;
 
-public class SubwayTest extends AcceptanceTest {
+public class SubwayAcceptanceTest extends AcceptanceTest {
     private final int INVALID_INPUT_STATUS_CODE = 400;
 
     @Description("올바른 이름 요청 시 지하철 역이 정상적으로 생성되어야 한다.")
