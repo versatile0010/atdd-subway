@@ -45,21 +45,8 @@ public class StationService {
         return id;
     }
 
-    public void validateDuplicatedName(String name) {
+    private void validateDuplicatedName(String name) {
         if (stationRepository.existsByName(name))
             throw new DuplicatedStationNameException();
-    }
-
-    public void validateInvalidStationId(Long id) {
-        stationRepository.findById(id)
-                .orElseThrow(NotFoundStationException::new);
-    }
-
-    public List<StationDto> getStationPair(Long downStationId, Long upStationId) {
-        Station downStation = stationRepository.findById(downStationId)
-                .orElseThrow(NotFoundStationException::new);
-        Station upStation = stationRepository.findById(upStationId)
-                .orElseThrow(NotFoundStationException::new);
-        return List.of(StationDto.from(downStation), StationDto.from(upStation));
     }
 }

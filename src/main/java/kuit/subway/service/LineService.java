@@ -1,12 +1,15 @@
 package kuit.subway.service;
 
 import kuit.subway.domain.Line;
+import kuit.subway.domain.Station;
 import kuit.subway.dto.request.CreateLineRequest;
 import kuit.subway.dto.request.ModifyLineRequest;
 import kuit.subway.dto.response.*;
 import kuit.subway.exception.badrequest.DuplicatedLineNameException;
 import kuit.subway.exception.notfound.NotFoundLineException;
+import kuit.subway.exception.notfound.NotFoundStationException;
 import kuit.subway.repository.LineRepository;
+import kuit.subway.repository.StationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,12 +20,13 @@ import java.util.List;
 @Transactional(readOnly = true)
 @Service
 public class LineService {
-    private final StationService stationService;
+    private final StationRepository stationRepository;
     private final LineRepository lineRepository;
 
     @Transactional
     public CreateLineResponse createOne(CreateLineRequest request) {
-        validateStations(request.getDownStationId(), request.getUpStationId());
+        validateStationId(request.getDownStationId());
+        validateStationId(request.getUpStationId());
         validateDuplicatedName(request.getName());
         Long savedLineId = lineRepository.save(Line.builder()
                 .color(request.getColor())
@@ -34,22 +38,22 @@ public class LineService {
         return new CreateLineResponse(savedLineId);
     }
 
-    public void validateDuplicatedName(String name) {
+    private void validateDuplicatedName(String name) {
         if (lineRepository.existsByName(name)) {
             throw new DuplicatedLineNameException();
         }
     }
 
-    public void validateStations(Long downStationId, Long upStationId) {
-        stationService.validateInvalidStationId(downStationId);
-        stationService.validateInvalidStationId(upStationId);
+    private void validateStationId(Long id) {
+        stationRepository.findById(id)
+                .orElseThrow(NotFoundStationException::new);
     }
 
     public LineInfoResponse getLineDetails(Long id) {
         Line line = lineRepository.findById(id)
                 .orElseThrow(NotFoundLineException::new);
         List<StationDto> stations =
-                stationService.getStationPair(line.getDownStationId(), line.getUpStationId());
+                getStationPair(line.getDownStationId(), line.getUpStationId());
         return LineInfoResponse.from(line, stations);
     }
 
@@ -67,5 +71,13 @@ public class LineService {
                 .orElseThrow(NotFoundLineException::new);
         lineRepository.delete(line);
         return new DeleteLineResponse(id);
+    }
+
+    public List<StationDto> getStationPair(Long downStationId, Long upStationId) {
+        Station downStation = stationRepository.findById(downStationId)
+                .orElseThrow(NotFoundStationException::new);
+        Station upStation = stationRepository.findById(upStationId)
+                .orElseThrow(NotFoundStationException::new);
+        return List.of(StationDto.from(downStation), StationDto.from(upStation));
     }
 }
