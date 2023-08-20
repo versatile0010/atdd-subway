@@ -1,6 +1,5 @@
 package kuit.subway.dto.response;
 
-import kuit.subway.domain.Line;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,11 +8,11 @@ import lombok.NoArgsConstructor;
 public class ModifyLineResponse {
     private Long id;
 
-    private ModifyLineResponse(Line line) {
-        this.id = line.getId();
+    private ModifyLineResponse(Long id) {
+        this.id = id;
     }
 
-    public static ModifyLineResponse from(Line line) {
-        return new ModifyLineResponse(line);
+    public static ModifyLineResponse from(Long id) {
+        return new ModifyLineResponse(id);
     }
 }

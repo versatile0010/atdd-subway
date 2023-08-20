@@ -62,7 +62,7 @@ public class LineService {
         line.setDistance(request.getDistance());
         line.setDownStationId(request.getDownStationId());
         line.setUpStationId(request.getUpStationId());
-        return ModifyLineResponse.from(line);
+        return ModifyLineResponse.from(line.getId());
     }
 
     @Transactional
