@@ -57,11 +57,7 @@ public class LineService {
     public ModifyLineResponse updateLine(ModifyLineRequest request, Long id) {
         Line line = lineRepository.findById(id)
                 .orElseThrow(NotFoundLineException::new);
-        line.setColor(request.getColor());
-        line.setName(request.getName());
-        line.setDistance(request.getDistance());
-        line.setDownStationId(request.getDownStationId());
-        line.setUpStationId(request.getUpStationId());
+        line.updateLine(request);
         return ModifyLineResponse.from(line.getId());
     }
 

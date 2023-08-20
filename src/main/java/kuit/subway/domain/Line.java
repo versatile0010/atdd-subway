@@ -1,6 +1,7 @@
 package kuit.subway.domain;
 
 import jakarta.persistence.*;
+import kuit.subway.dto.request.ModifyLineRequest;
 import kuit.subway.exception.badrequest.InvalidCreateLineException;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -38,23 +39,12 @@ public class Line extends BaseTimeEntity {
         }
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setDistance(int distance) {
-        this.distance = distance;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public void setDownStationId(Long downStationId) {
-        this.downStationId = downStationId;
-    }
-
-    public void setUpStationId(Long upStationId) {
-        this.upStationId = upStationId;
+    public void updateLine(ModifyLineRequest request) {
+        validateStations(request.getDownStationId(), request.getUpStationId());
+        this.name = request.getName();
+        this.distance = request.getDistance();
+        this.downStationId = request.getDownStationId();
+        this.upStationId = request.getUpStationId();
+        this.color = request.getColor();
     }
 }
