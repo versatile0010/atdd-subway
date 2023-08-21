@@ -12,7 +12,7 @@ public class StationDto {
     private Long id;
     private String name;
 
-    public StationDto(Station station) {
+    private StationDto(Station station) {
         this.id = station.getId();
         this.name = station.getName();
     }
