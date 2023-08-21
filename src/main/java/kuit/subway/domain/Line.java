@@ -8,6 +8,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
@@ -19,9 +22,12 @@ public class Line extends BaseTimeEntity {
     @Column(length = 20, nullable = false)
     private String name;
     private int distance;
-    private Long downStationId;
-    private Long upStationId;
+    private Long downStationId; // TODO: 제거
+    private Long upStationId; // TODO: 제거
     private String color;
+
+    @OneToMany(mappedBy = "line")
+    private List<Section> sections = new ArrayList<>();
 
     @Builder
     public Line(String name, int distance, Long downStationId, Long upStationId, String color) {
@@ -47,4 +53,6 @@ public class Line extends BaseTimeEntity {
         this.upStationId = request.getUpStationId();
         this.color = request.getColor();
     }
+
+
 }
