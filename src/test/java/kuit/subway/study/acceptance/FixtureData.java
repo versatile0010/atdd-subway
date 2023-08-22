@@ -4,6 +4,7 @@ import kuit.subway.dto.request.CreateLineRequest;
 import kuit.subway.dto.request.CreateStationRequest;
 import kuit.subway.dto.request.ModifyLineRequest;
 
+import static kuit.subway.study.acceptance.line.LineStep.지하철_노선_생성하기;
 import static kuit.subway.study.acceptance.station.StationStep.지하철_역_생성하기;
 
 public class FixtureData {
@@ -24,5 +25,14 @@ public class FixtureData {
         CreateStationRequest 서초역 = 지하철_역_생성_데이터_만들기("서초역");
         지하철_역_생성하기(강남역);
         지하철_역_생성하기(서초역);
+    }
+
+    public static void 이호선_강남역하행_서초역상행_생성하기(){
+        CreateStationRequest 강남역 = 지하철_역_생성_데이터_만들기("강남역");
+        CreateStationRequest 서초역 = 지하철_역_생성_데이터_만들기("서초역");
+        지하철_역_생성하기(강남역);
+        지하철_역_생성하기(서초역);
+        CreateLineRequest 이호선 = new CreateLineRequest("green", 10, "2호선", 1L, 2L);
+        지하철_노선_생성하기(이호선);
     }
 }
