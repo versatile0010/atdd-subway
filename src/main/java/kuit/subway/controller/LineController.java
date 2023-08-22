@@ -2,11 +2,9 @@ package kuit.subway.controller;
 
 import jakarta.validation.Valid;
 import kuit.subway.dto.request.CreateLineRequest;
+import kuit.subway.dto.request.CreateSectionRequest;
 import kuit.subway.dto.request.ModifyLineRequest;
-import kuit.subway.dto.response.CreateLineResponse;
-import kuit.subway.dto.response.DeleteLineResponse;
-import kuit.subway.dto.response.LineInfoResponse;
-import kuit.subway.dto.response.ModifyLineResponse;
+import kuit.subway.dto.response.*;
 import kuit.subway.service.LineService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +33,8 @@ public class LineController {
     @GetMapping("/{id}")
     public ResponseEntity<LineInfoResponse> getLineInfo(@PathVariable("id") Long id) {
         log.info("노선{id=" + id + "} 조회 API 를 호출합니다.");
-        return ResponseEntity.ok(lineService.getLineDetails(id));
+        LineInfoResponse response = lineService.getLineDetails(id);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{id}")
@@ -57,4 +56,14 @@ public class LineController {
                 .body(response);
     }
 
+    @PostMapping("/{id}/sections")
+    public ResponseEntity<CreateSectionResponse> addSection(
+            @PathVariable("id") Long id,
+            @RequestBody @Valid CreateSectionRequest request){
+        log.info("노선{id="+id+"} 구간 추가 API 를 호출합니다.");
+        CreateSectionResponse response = lineService.addSection(request, id);
+        return ResponseEntity.created(
+                URI.create("/lines/"+id+"/sections" + response.getId())
+        ).body(response);
+    }
 }
