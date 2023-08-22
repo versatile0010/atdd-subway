@@ -13,8 +13,6 @@ public class Section extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(length = 20, nullable = false)
-    private String name;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "down_station_id")
@@ -27,4 +25,14 @@ public class Section extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "line_id")
     private Line line;
+
+    private Section(Station downStation, Station upStation, Line line) {
+        this.downStation = downStation;
+        this.upStation = upStation;
+        this.line = line;
+    }
+
+    public static Section from(Station downStation, Station upStation, Line line) {
+        return new Section(downStation, upStation, line);
+    }
 }
