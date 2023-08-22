@@ -4,6 +4,10 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import org.junit.jupiter.api.Assertions;
+import org.springframework.http.HttpStatus;
+
+import static org.hamcrest.Matchers.equalTo;
 
 public class AcceptanceUtils {
     public static ExtractableResponse<Response> get(String path) {
@@ -41,5 +45,17 @@ public class AcceptanceUtils {
                 .when().delete(path + "/{id}", id)
                 .then().log().all()
                 .extract();
+    }
+
+    public static void 응답결과_검증하기(ExtractableResponse<Response> extract, HttpStatus expectedStatus) {
+        Assertions.assertEquals(expectedStatus.value(), extract.statusCode());
+    }
+
+    public static void 응답결과_검증하기(ExtractableResponse<Response> extract, int code) {
+        Assertions.assertEquals(code, extract.statusCode());
+    }
+
+    public static void 응답바디값_기대값과_같은지_검증하기(ExtractableResponse<Response> extract, String path, int expected) {
+        extract.response().then().assertThat().body(path, equalTo(expected));
     }
 }
