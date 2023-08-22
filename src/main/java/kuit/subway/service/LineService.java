@@ -1,14 +1,17 @@
 package kuit.subway.service;
 
 import kuit.subway.domain.Line;
+import kuit.subway.domain.Section;
 import kuit.subway.domain.Station;
 import kuit.subway.dto.request.CreateLineRequest;
+import kuit.subway.dto.request.CreateSectionRequest;
 import kuit.subway.dto.request.ModifyLineRequest;
 import kuit.subway.dto.response.*;
 import kuit.subway.exception.badrequest.DuplicatedLineNameException;
 import kuit.subway.exception.notfound.NotFoundLineException;
 import kuit.subway.exception.notfound.NotFoundStationException;
 import kuit.subway.repository.LineRepository;
+import kuit.subway.repository.SectionRepository;
 import kuit.subway.repository.StationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,7 @@ import java.util.List;
 public class LineService {
     private final StationRepository stationRepository;
     private final LineRepository lineRepository;
+    private final SectionRepository sectionRepository;
 
     @Transactional
     public CreateLineResponse createOne(CreateLineRequest request) {
@@ -79,5 +83,25 @@ public class LineService {
         Station upStation = stationRepository.findById(upStationId)
                 .orElseThrow(NotFoundStationException::new);
         return List.of(StationDto.from(downStation), StationDto.from(upStation));
+    }
+
+    @Transactional
+    public CreateSectionResponse addSection(CreateSectionRequest request, Long id) {
+        Long downStationId = request.getDownStationId();
+        Long upStationId = request.getUpStationId();
+
+        Line line = lineRepository.findById(id)
+                .orElseThrow(NotFoundLineException::new);
+        Station downStation = stationRepository.findById(downStationId)
+                .orElseThrow(NotFoundStationException::new);
+        Station upStation = stationRepository.findById(upStationId)
+                .orElseThrow(NotFoundStationException::new);
+
+        Section section = Section.from(downStation, upStation, line);
+        line.addSection(section); // 해당 노선에 대하여 구간 추가 및 검증
+        line.setDownStationId(downStationId); // 해당 노선의 하행종점을 새로운 구간의 하행역으로 변경
+
+        sectionRepository.save(section);
+        return new CreateSectionResponse(section.getId());
     }
 }
