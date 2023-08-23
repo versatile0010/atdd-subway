@@ -47,6 +47,14 @@ public class AcceptanceUtils {
                 .extract();
     }
 
+    public static ExtractableResponse<Response> delete(String path, Object body) {
+        return RestAssured.given().log().all()
+                .body(body).contentType(ContentType.JSON)
+                .when().delete(path)
+                .then().log().all()
+                .extract();
+    }
+
     public static void 응답결과_검증하기(ExtractableResponse<Response> extract, HttpStatus expectedStatus) {
         Assertions.assertEquals(expectedStatus.value(), extract.statusCode());
     }
