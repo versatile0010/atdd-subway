@@ -5,10 +5,12 @@ import kuit.subway.domain.Section;
 import kuit.subway.domain.Station;
 import kuit.subway.dto.request.CreateLineRequest;
 import kuit.subway.dto.request.CreateSectionRequest;
+import kuit.subway.dto.request.DeleteSectionRequest;
 import kuit.subway.dto.request.ModifyLineRequest;
 import kuit.subway.dto.response.*;
 import kuit.subway.exception.badrequest.DuplicatedLineNameException;
 import kuit.subway.exception.notfound.NotFoundLineException;
+import kuit.subway.exception.notfound.NotFoundSectionException;
 import kuit.subway.exception.notfound.NotFoundStationException;
 import kuit.subway.repository.LineRepository;
 import kuit.subway.repository.SectionRepository;
@@ -103,5 +105,17 @@ public class LineService {
 
         sectionRepository.save(section);
         return new CreateSectionResponse(section.getId());
+    }
+    @Transactional
+    public DeleteSectionResponse deleteSection(DeleteSectionRequest request, Long id){
+        // request body 로 section id 를 받고, path parameter 으로 line id 를 받는다.
+        Section section = sectionRepository.findById(request.getSectionId())
+                .orElseThrow(NotFoundSectionException::new);
+        Line line = lineRepository.findById(id)
+                .orElseThrow(NotFoundLineException::new);
+        Station downStation = section.getDownStation();
+
+        line.removeSection(downStation.getId()); // section 제거
+        return new DeleteSectionResponse(request.getSectionId()); // 제거한 section id 를 반환
     }
 }

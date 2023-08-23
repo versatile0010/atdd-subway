@@ -5,6 +5,8 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.OneToMany;
 import kuit.subway.exception.badrequest.AlreadyExistStationException;
 import kuit.subway.exception.badrequest.InvalidUpStationException;
+import kuit.subway.exception.badrequest.NonFinalSectionRemoveException;
+import kuit.subway.exception.badrequest.SingleSectionRemoveException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,19 +21,42 @@ public class Sections {
         Line line = section.getLine();
         Station upStation = section.getUpStation();
         Station downStation = section.getDownStation();
-
-        validateUpStation(upStation.getId(), line.getDownStationId());
-        validateDownStation(downStation.getId(), line);
-
+        if (sections.size() != 0) {
+            validateUpStation(upStation.getId(), line.getDownStationId());
+            validateDownStation(downStation.getId(), line);
+        }
         sections.add(section);
     }
 
+    public void remove(Long stationId) {
+        if (sections.size() <= 1) {
+            // 지하철 노선에 상행 종점역과 하행 종점역만 있는 경우(구간이 1개인 경우) 역을 삭제할 수 없다.
+            throw new SingleSectionRemoveException();
+        }
+        int lastSectionIdx = sections.size() - 1;
+        Long finalDownStationId = sections.get(lastSectionIdx)
+                .getDownStation()
+                .getId();
+
+        if (!Objects.equals(stationId, finalDownStationId)) {
+            // 지하철 노선에 등록된 역(하행 종점역)만 제거할 수 있다. 즉, 마지막 구간만 제거할 수 있다.
+            throw new NonFinalSectionRemoveException();
+        }
+        sections.remove(lastSectionIdx);
+    }
+
     public List<Station> getDownStations() {
-        return sections.stream().map(Section::getDownStation).toList();
+        return sections
+                .stream()
+                .map(Section::getDownStation)
+                .toList();
     }
 
     public List<Station> getUpStations() {
-        return sections.stream().map(Section::getUpStation).toList();
+        return sections
+                .stream()
+                .map(Section::getUpStation)
+                .toList();
     }
 
     private void validateUpStation(Long newUpStationId, Long finalDownStationId) {

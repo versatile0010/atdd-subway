@@ -3,6 +3,7 @@ package kuit.subway.controller;
 import jakarta.validation.Valid;
 import kuit.subway.dto.request.CreateLineRequest;
 import kuit.subway.dto.request.CreateSectionRequest;
+import kuit.subway.dto.request.DeleteSectionRequest;
 import kuit.subway.dto.request.ModifyLineRequest;
 import kuit.subway.dto.response.*;
 import kuit.subway.service.LineService;
@@ -59,11 +60,22 @@ public class LineController {
     @PostMapping("/{id}/sections")
     public ResponseEntity<CreateSectionResponse> addSection(
             @PathVariable("id") Long id,
-            @RequestBody @Valid CreateSectionRequest request){
-        log.info("노선{id="+id+"} 구간 추가 API 를 호출합니다.");
+            @RequestBody @Valid CreateSectionRequest request) {
+        log.info("노선{id=" + id + "} 구간 추가 API 를 호출합니다.");
         CreateSectionResponse response = lineService.addSection(request, id);
         return ResponseEntity.created(
-                URI.create("/lines/"+id+"/sections" + response.getId())
+                URI.create("/lines/" + id + "/sections" + response.getId())
         ).body(response);
+    }
+
+    @DeleteMapping("/{id}/sections")
+    public ResponseEntity<DeleteSectionResponse> deleteSection(
+            @PathVariable("id") Long id,
+            @RequestBody DeleteSectionRequest request) {
+        log.info("노선{id=" + id + "} 구간 삭제 API 를 호출합니다.");
+        DeleteSectionResponse response = lineService.deleteSection(request, id);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(response);
     }
 }
