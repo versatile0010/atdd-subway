@@ -75,8 +75,8 @@ public class Sections {
     }
 
     private static void validateExistStation(Long newStationId, List<Station> stations) {
-        for (Station upStation : stations) {
-            if (Objects.equals(newStationId, upStation.getId())) {
+        for (Station station : stations) {
+            if (Objects.equals(newStationId, station.getId())) {
                 throw new AlreadyExistStationException();
             }
         }
