@@ -73,7 +73,7 @@ public class LineController {
             @PathVariable("id") Long id,
             @RequestBody DeleteSectionRequest request) {
         log.info("노선{id=" + id + "} 구간 삭제 API 를 호출합니다.");
-        DeleteSectionResponse response = lineService.deleteSection(request, id);
+        DeleteSectionResponse response = lineService.removeSection(request, id);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .body(response);
