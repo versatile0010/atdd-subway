@@ -107,7 +107,7 @@ public class LineService {
         return new CreateSectionResponse(section.getId());
     }
     @Transactional
-    public DeleteSectionResponse deleteSection(DeleteSectionRequest request, Long id){
+    public DeleteSectionResponse removeSection(DeleteSectionRequest request, Long id){
         // request body 로 section id 를 받고, path parameter 으로 line id 를 받는다.
         Section section = sectionRepository.findById(request.getSectionId())
                 .orElseThrow(NotFoundSectionException::new);
