@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
@@ -60,5 +62,9 @@ public class Line extends BaseTimeEntity {
 
     public void setDownStationId(Long newDownStationId) {
         downStationId = newDownStationId;
+    }
+
+    public List<Station> getStations(){
+        return sections.getStations();
     }
 }

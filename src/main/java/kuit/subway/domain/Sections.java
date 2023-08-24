@@ -17,6 +17,7 @@ public class Sections {
     @OneToMany(mappedBy = "line", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<Section> sections = new ArrayList<>();
 
+    private final int ZERO = 0;
     public void add(Section section) {
         Line line = section.getLine();
         Station upStation = section.getUpStation();
@@ -59,6 +60,20 @@ public class Sections {
                 .stream()
                 .map(Section::getUpStation)
                 .toList();
+    }
+
+    public List<Station> getStations(){
+        List<Station> stations = new ArrayList<>();
+        for(int i = ZERO ; i < sections.size(); i++){
+            Section cur = sections.get(i);
+            if(i==0){
+                stations.add(cur.getUpStation());
+                stations.add(cur.getDownStation());
+                continue;
+            }
+            stations.add(cur.getDownStation());
+        }
+        return stations;
     }
 
     private void validateUpStation(Long newUpStationId, Long finalDownStationId) {

@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import static kuit.subway.study.acceptance.AcceptanceUtils.응답결과_검증하기;
 import static kuit.subway.study.acceptance.AcceptanceUtils.응답바디값_기대값과_같은지_검증하기;
 import static kuit.subway.study.acceptance.FixtureData.*;
+import static kuit.subway.study.acceptance.line.LineStep.지하철_노선_조회하기;
 import static kuit.subway.study.acceptance.section.SectionStep.지하철_구간_삭제하기;
 import static kuit.subway.study.acceptance.section.SectionStep.지하철_구간_생성하기;
 import static kuit.subway.study.acceptance.station.StationStep.지하철_역_생성하기;
@@ -79,7 +80,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         응답결과_검증하기(extract, HttpStatus.BAD_REQUEST);
     }
 
-    @Description("마지막 구간에 대한 삭제 요청 시, 구간이 생성되어야 한다.")
+    @Description("마지막 구간에 대한 삭제 요청 시, 구간이 제거되어야 한다.")
     @Test
     public void 지하철_하행종점_구간_삭제_테스트() {
         /* given 강남역하행과 서초역상행인 2호선을 생성하고 (서초역 -> 강남역)
@@ -88,17 +89,20 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         이호선_강남역하행_서초역상행_생성하기();
         구간_데이터 = 지하철_구간_생성_데이터_만들기(강남역_아이디, 서초역_아이디);
         지하철_구간_생성하기(구간_데이터, 이호선_아이디);
+        지하철_노선_조회하기(이호선_아이디);
+
         CreateStationRequest 건대입구역_데이터 = 지하철_역_생성_데이터_만들기("건대입구역");
         지하철_역_생성하기(건대입구역_데이터);
         구간_데이터 = 지하철_구간_생성_데이터_만들기(3L, 강남역_아이디);
         지하철_구간_생성하기(구간_데이터, 이호선_아이디);
-
+        지하철_노선_조회하기(이호선_아이디);
         // when (강남역 -> 건대입구역) 구간 삭제 요청을 보내면
         DeleteSectionRequest 구간_삭제_요청_데이터 = 지하철_구간_삭제_데이터_만들기(2L);
         ExtractableResponse<Response> extract = 지하철_구간_삭제하기(구간_삭제_요청_데이터, 이호선_아이디);
 
         // then 마지막 구간이 맞으므로 삭제되어야 한다.
         응답결과_검증하기(extract, HttpStatus.NO_CONTENT);
+        지하철_노선_조회하기(이호선_아이디);
     }
 
     @Description("마지막 구간이 아닌 구간에 대한 삭제 요청은, 거절되어야 한다.")

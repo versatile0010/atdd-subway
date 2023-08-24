@@ -58,8 +58,7 @@ public class LineService {
     public LineInfoResponse getLineDetails(Long id) {
         Line line = lineRepository.findById(id)
                 .orElseThrow(NotFoundLineException::new);
-        List<StationDto> stations =
-                getStationPair(line.getDownStationId(), line.getUpStationId());
+        List<Station> stations = line.getStations();
         return LineInfoResponse.from(line, stations);
     }
 
@@ -77,14 +76,6 @@ public class LineService {
                 .orElseThrow(NotFoundLineException::new);
         lineRepository.delete(line);
         return new DeleteLineResponse(id);
-    }
-
-    public List<StationDto> getStationPair(Long downStationId, Long upStationId) {
-        Station downStation = stationRepository.findById(downStationId)
-                .orElseThrow(NotFoundStationException::new);
-        Station upStation = stationRepository.findById(upStationId)
-                .orElseThrow(NotFoundStationException::new);
-        return List.of(StationDto.from(downStation), StationDto.from(upStation));
     }
 
     @Transactional
@@ -106,8 +97,9 @@ public class LineService {
         sectionRepository.save(section);
         return new CreateSectionResponse(section.getId());
     }
+
     @Transactional
-    public DeleteSectionResponse removeSection(DeleteSectionRequest request, Long id){
+    public DeleteSectionResponse removeSection(DeleteSectionRequest request, Long id) {
         // request body 로 section id 를 받고, path parameter 으로 line id 를 받는다.
         Section section = sectionRepository.findById(request.getSectionId())
                 .orElseThrow(NotFoundSectionException::new);
