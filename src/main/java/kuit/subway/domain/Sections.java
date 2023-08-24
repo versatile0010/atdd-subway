@@ -75,6 +75,7 @@ public class Sections {
     }
 
     private static void validateExistStation(Long newStationId, List<Station> stations) {
+        // stations 리스트에 newStationId 와 동일한 station 이 존재하면 예외 throw
         for (Station station : stations) {
             if (Objects.equals(newStationId, station.getId())) {
                 throw new AlreadyExistStationException();
