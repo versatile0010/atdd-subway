@@ -38,13 +38,13 @@ public class Sections {
         int lastSectionIdx = sections.size() - 1;
         Long finalDownStationId = sections.get(lastSectionIdx)
                 .getDownStation()
-                .getId();
+                .getId(); // 현재 하행종점역의 아이디
 
         if (!Objects.equals(stationId, finalDownStationId)) {
             // 지하철 노선에 등록된 역(하행 종점역)만 제거할 수 있다. 즉, 마지막 구간만 제거할 수 있다.
             throw new NonFinalSectionRemoveException();
         }
-        sections.remove(lastSectionIdx);
+        sections.remove(lastSectionIdx); // 가장 끝 구간을 삭제함. (현재 요구 사항에서는 마지막 구간만 제거 가능)
     }
 
     public List<Station> getDownStations() {
