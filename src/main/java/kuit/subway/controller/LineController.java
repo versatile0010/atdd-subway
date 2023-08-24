@@ -58,7 +58,7 @@ public class LineController {
     }
 
     @PostMapping("/{id}/sections")
-    public ResponseEntity<CreateSectionResponse> addSection(
+    public ResponseEntity<CreateSectionResponse> createSection(
             @PathVariable("id") Long id,
             @RequestBody @Valid CreateSectionRequest request) {
         log.info("노선{id=" + id + "} 구간 추가 API 를 호출합니다.");
