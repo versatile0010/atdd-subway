@@ -23,7 +23,7 @@ public class Sections {
         Station downStation = section.getDownStation();
         if (sections.size() != 0) {
             validateUpStation(upStation.getId(), line.getDownStationId());
-            validateDownStation(downStation.getId(), line);
+            validateDownStation(downStation.getId());
         }
         sections.add(section);
     }
@@ -66,7 +66,7 @@ public class Sections {
         }
     }
 
-    private void validateDownStation(Long newDownStationId, Line line) {
+    private void validateDownStation(Long newDownStationId) {
         // 새로운 구간의 하행역은 해당 노선에 등록되어있는 역일 수 없다.
         List<Station> downStations = getDownStations();
         validateExistStation(newDownStationId, downStations);
