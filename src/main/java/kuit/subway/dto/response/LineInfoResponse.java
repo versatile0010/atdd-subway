@@ -18,8 +18,6 @@ public class LineInfoResponse {
     private List<StationDto> stations;
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
-    private Long finalDownStationId;
-    private Long finalUpStationId;
 
     private LineInfoResponse(Line line, List<Station> stations) {
         this.id = line.getId();
@@ -31,8 +29,6 @@ public class LineInfoResponse {
                 .stream()
                 .map(StationDto::from)
                 .toList();
-        this.finalDownStationId = line.getDownStationId();
-        this.finalUpStationId = line.getUpStationId();
     }
 
     public static LineInfoResponse from(Line line, List<Station> stations) {

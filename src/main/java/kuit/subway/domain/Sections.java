@@ -18,14 +18,17 @@ public class Sections {
     private List<Section> sections = new ArrayList<>();
 
     private final int ZERO = 0;
+
     public void add(Section section) {
-        Line line = section.getLine();
         Station upStation = section.getUpStation();
         Station downStation = section.getDownStation();
         if (sections.size() != 0) {
             /* 현재 노선에 구간이 하나도 없으면 구간 추가에 대한 검증을 거치지 않음
                2단계 미션에서 요구사항이 추가되면 수정이 필요함. */
-            validateUpStation(upStation.getId(), line.getDownStationId());
+            List<Station> stations = getStations(); // 등록된 역을 모두 가져와서
+            int stationCount = stations.size();
+            Long finalDownStationId = getFinalDownStationId(stations, stationCount); // 하행 종점역 아이디를 얻는다.
+            validateUpStation(upStation.getId(), finalDownStationId);
             validateDownStation(downStation.getId());
         }
         sections.add(section);
@@ -62,11 +65,11 @@ public class Sections {
                 .toList();
     }
 
-    public List<Station> getStations(){
+    public List<Station> getStations() {
         List<Station> stations = new ArrayList<>();
-        for(int i = ZERO ; i < sections.size(); i++){
+        for (int i = ZERO; i < sections.size(); i++) {
             Section cur = sections.get(i);
-            if(i==0){
+            if (i == ZERO) {
                 stations.add(cur.getUpStation());
                 stations.add(cur.getDownStation());
                 continue;
@@ -74,6 +77,14 @@ public class Sections {
             stations.add(cur.getDownStation());
         }
         return stations;
+    }
+
+    private Long getFinalDownStationId(List<Station> stations, int stationCount) {
+        return stations.get(stationCount - 1).getId();
+    }
+
+    private Long getFinalUpStationId(List<Station> stations) {
+        return stations.get(0).getId();
     }
 
     private void validateUpStation(Long newUpStationId, Long finalDownStationId) {
@@ -91,7 +102,7 @@ public class Sections {
         validateExistStation(newDownStationId, upStations);
     }
 
-    private static void validateExistStation(Long newStationId, List<Station> stations) {
+    private void validateExistStation(Long newStationId, List<Station> stations) {
         // stations 리스트에 newStationId 와 동일한 station 이 존재하면 예외 throw
         for (Station station : stations) {
             if (Objects.equals(newStationId, station.getId())) {

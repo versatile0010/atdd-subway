@@ -4,11 +4,11 @@ import jakarta.persistence.*;
 import kuit.subway.dto.request.ModifyLineRequest;
 import kuit.subway.exception.badrequest.InvalidCreateLineException;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Objects;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -21,24 +21,18 @@ public class Line extends BaseTimeEntity {
     @Column(length = 20, nullable = false)
     private String name;
     private int distance;
-    private Long downStationId;
-    private Long upStationId;
     private String color;
     @Embedded
     private Sections sections = new Sections();
 
-    @Builder
-    public Line(String name, int distance, Long downStationId, Long upStationId, String color) {
-        validateStations(downStationId, upStationId);
+    public Line(String name, int distance, String color) {
         this.name = name;
         this.distance = distance;
-        this.downStationId = downStationId;
-        this.upStationId = upStationId;
         this.color = color;
     }
 
     public void validateStations(Long downStationId, Long upStationId) {
-        if (downStationId == upStationId) {
+        if (Objects.equals(downStationId, upStationId)) {
             throw new InvalidCreateLineException();
         }
     }
@@ -47,8 +41,6 @@ public class Line extends BaseTimeEntity {
         validateStations(request.getDownStationId(), request.getUpStationId());
         this.name = request.getName();
         this.distance = request.getDistance();
-        this.downStationId = request.getDownStationId();
-        this.upStationId = request.getUpStationId();
         this.color = request.getColor();
     }
 
@@ -60,11 +52,7 @@ public class Line extends BaseTimeEntity {
         sections.remove(stationId);
     }
 
-    public void setDownStationId(Long newDownStationId) {
-        downStationId = newDownStationId;
-    }
-
-    public List<Station> getStations(){
+    public List<Station> getStations() {
         return sections.getStations();
     }
 }
