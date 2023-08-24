@@ -22,6 +22,8 @@ public class Sections {
         Station upStation = section.getUpStation();
         Station downStation = section.getDownStation();
         if (sections.size() != 0) {
+            /* 현재 노선에 구간이 하나도 없으면 구간 추가에 대한 검증을 거치지 않음
+               2단계 미션에서 요구사항이 추가되면 수정이 필요함. */
             validateUpStation(upStation.getId(), line.getDownStationId());
             validateDownStation(downStation.getId());
         }
