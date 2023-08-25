@@ -1,7 +1,9 @@
 package kuit.subway.exception.badrequest;
 
+import static kuit.subway.exception.CustomExceptionContext.DUPLICATED_STATION_NAME_ERROR;
+
 public class DuplicatedStationNameException extends BadRequestException {
     public DuplicatedStationNameException(){
-        super("이미 존재하는 지하철 역 이름입니다.", 3000);
+        super(DUPLICATED_STATION_NAME_ERROR);
     }
 }
