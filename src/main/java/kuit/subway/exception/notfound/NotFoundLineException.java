@@ -1,7 +1,9 @@
 package kuit.subway.exception.notfound;
 
+import static kuit.subway.exception.CustomExceptionContext.NOT_FOUND_LINE_ERROR;
+
 public class NotFoundLineException extends NotFoundException {
     public NotFoundLineException() {
-        super("존재하지 않는 지하철 노선입니다.", 2001);
+        super(NOT_FOUND_LINE_ERROR);
     }
 }
