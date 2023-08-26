@@ -1,5 +1,7 @@
 package kuit.subway.study.acceptance;
 
+import kuit.subway.domain.Line;
+import kuit.subway.domain.Station;
 import kuit.subway.dto.request.*;
 
 import static kuit.subway.study.acceptance.line.LineStep.지하철_노선_생성하기;
@@ -22,7 +24,7 @@ public class FixtureData {
         return new CreateSectionRequest(downStationId, upStationId);
     }
 
-    public static DeleteSectionRequest 지하철_구간_삭제_데이터_만들기(Long sectionId){
+    public static DeleteSectionRequest 지하철_구간_삭제_데이터_만들기(Long sectionId) {
         return new DeleteSectionRequest(sectionId);
     }
 
@@ -40,5 +42,17 @@ public class FixtureData {
         지하철_역_생성하기(서초역);
         CreateLineRequest 이호선 = new CreateLineRequest("green", 10, "2호선", 1L, 2L);
         지하철_노선_생성하기(이호선);
+    }
+
+    public static Station create_강남역() {
+        return Station.createMock(1L, "강남역");
+    }
+
+    public static Station create_서초역() {
+        return Station.createMock(2L, "서초역");
+    }
+
+    public static Line createEmptyLine_이호선() {
+        return Line.createMock(1L, "이호선", 10, "green");
     }
 }
