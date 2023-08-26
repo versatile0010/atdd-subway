@@ -35,4 +35,14 @@ public class Section extends BaseTimeEntity {
     public static Section from(Station downStation, Station upStation, Line line) {
         return new Section(downStation, upStation, line);
     }
+
+    private Section(Long id, Station downStation, Station upStation, Line line) {
+        this.id = id;
+        this.downStation = downStation;
+        this.upStation = upStation;
+        this.line = line;
+    }
+    public static Section createMock(Long id, Station downStation, Station upStation, Line line) {
+        return new Section(id, downStation, upStation, line);
+    }
 }

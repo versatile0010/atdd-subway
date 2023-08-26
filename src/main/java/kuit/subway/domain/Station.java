@@ -21,4 +21,13 @@ public class Station extends BaseTimeEntity {
     public Station(String name) {
         this.name = name;
     }
+
+    private Station(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public static Station createMock(Long id, String name) {
+        return new Station(id, name);
+    }
 }

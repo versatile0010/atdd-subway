@@ -55,4 +55,15 @@ public class Line extends BaseTimeEntity {
     public List<Station> getStations() {
         return sections.getStations();
     }
+
+    private Line(Long id, String name, int distance, String color) {
+        this.id = id;
+        this.name = name;
+        this.distance = distance;
+        this.color = color;
+    }
+
+    public static Line createMock(Long id, String name, int distance, String color) {
+        return new Line(id, name, distance, color);
+    }
 }
