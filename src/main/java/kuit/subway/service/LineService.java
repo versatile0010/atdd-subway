@@ -93,10 +93,9 @@ public class LineService {
                 .orElseThrow(NotFoundStationException::new);
 
         Section section = Section.from(downStation, upStation, line);
-        line.addSection(section); // 해당 노선에 대하여 구간 추가 및 검증
 
-        sectionRepository.save(section);
-        return new CreateSectionResponse(section.getId());
+        line.addSection(section); // 해당 노선에 대하여 구간 추가 및 검증
+        return new CreateSectionResponse(line.getId());
     }
 
     @Transactional
