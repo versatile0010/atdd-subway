@@ -24,7 +24,9 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     private final Long 강남역_아이디 = 1L;
     private final Long 서초역_아이디 = 2L;
     private final Long 이호선_아이디 = 1L;
-
+    private final int SECTION_AT_BETWEEN = 2;
+    private final int SECTION_AT_FIRST = 1;
+    private final int SECTION_AT_LAST = 0;
     @Description("지하철 구간 생성 요청이 올바르면, 구간이 생성되어야 한다.")
     @Test
     public void 지하철_구간_생성_테스트() {
@@ -35,12 +37,12 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         CreateStationRequest 건대입구역_데이터 = 지하철_역_생성_데이터_만들기("건대입구역");
         지하철_역_생성하기(건대입구역_데이터);
         Long 건대입구역_아이디 = 3L;
-        구간_데이터 = 지하철_구간_생성_데이터_만들기(건대입구역_아이디, 강남역_아이디);
+        구간_데이터 = 지하철_구간_생성_데이터_만들기(건대입구역_아이디, 강남역_아이디, SECTION_AT_LAST);
 
         ExtractableResponse<Response> extract = 지하철_구간_생성하기(구간_데이터, 이호선_아이디);
-        // then 구간이 생성되고 구간 Id 를 응답으로 받는다. {서초역 -> 강남역 -> 건대입구역}
+        // then 구간이 생성되고 노선 Id 를 응답으로 받는다. {서초역 -> 강남역 -> 건대입구역}
         응답결과_검증하기(extract, HttpStatus.CREATED);
-        응답바디값_기대값과_같은지_검증하기(extract, "id", 2);
+        응답바디값_기대값과_같은지_검증하기(extract, "id", 1);
     }
 
     @Description("새로운 구간의 하행역이 기존 구간에 존재하는 역이면, 구간 생성 요청이 거절되어야 합니다.")
@@ -49,7 +51,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         // given 강남역하행과 서초역상행인 2호선을 생성하고 (서초역 -> 강남역)
         이호선_강남역하행_서초역상행_생성하기();
         // when (서초역 -> 강남역) 을 추가하려고 하면
-        구간_데이터 = 지하철_구간_생성_데이터_만들기(서초역_아이디, 강남역_아이디);
+        구간_데이터 = 지하철_구간_생성_데이터_만들기(서초역_아이디, 강남역_아이디, SECTION_AT_LAST);
         ExtractableResponse<Response> extract = 지하철_구간_생성하기(구간_데이터, 이호선_아이디);
         // then 추가할 구간의 하행역은 기존 구간에 포함되지 않아야 하므로, 거절되어야 한다.
         응답결과_검증하기(extract, HttpStatus.BAD_REQUEST);
@@ -69,7 +71,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         지하철_역_생성하기(성수역_데이터);
         Long 성수역_아이디 = 4L;
 
-        구간_데이터 = 지하철_구간_생성_데이터_만들기(성수역_아이디, 건대입구역_아이디);
+        구간_데이터 = 지하철_구간_생성_데이터_만들기(성수역_아이디, 건대입구역_아이디, SECTION_AT_LAST);
         ExtractableResponse<Response> extract = 지하철_구간_생성하기(구간_데이터, 이호선_아이디);
         // then 새로 추가할 구간의 상행역(성수역)이 기존 구간의 하행 종점(강남역)이 아니므로 거절되어야 한다.
         응답결과_검증하기(extract, HttpStatus.BAD_REQUEST);
@@ -86,7 +88,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
 
         CreateStationRequest 건대입구역_데이터 = 지하철_역_생성_데이터_만들기("건대입구역");
         지하철_역_생성하기(건대입구역_데이터);
-        구간_데이터 = 지하철_구간_생성_데이터_만들기(3L, 강남역_아이디);
+        구간_데이터 = 지하철_구간_생성_데이터_만들기(3L, 강남역_아이디, SECTION_AT_LAST);
         지하철_구간_생성하기(구간_데이터, 이호선_아이디);
 
         지하철_노선_조회하기(이호선_아이디);
@@ -108,7 +110,7 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         이호선_강남역하행_서초역상행_생성하기();
         CreateStationRequest 건대입구역_데이터 = 지하철_역_생성_데이터_만들기("건대입구역");
         지하철_역_생성하기(건대입구역_데이터);
-        구간_데이터 = 지하철_구간_생성_데이터_만들기(3L, 강남역_아이디);
+        구간_데이터 = 지하철_구간_생성_데이터_만들기(3L, 강남역_아이디, SECTION_AT_LAST);
         지하철_구간_생성하기(구간_데이터, 이호선_아이디);
 
         // when (서초역 -> 강남역) 구간에 대한 삭제 요청을 보내면
