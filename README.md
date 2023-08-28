@@ -68,12 +68,33 @@ private void addSectionAtLast(...){
 ```agsl
 private void addSectionBetween(...){
     for( i : sections 순회 ){
-        for( station : section 내에 속한 상행역, 하행역에 대하여 ) {
-            if (새로 추가할 구간의 상행역이 station 과 같다면 ) {
-                i+1 번째에 구간 추가
-                i 번째에 구간 추가
+        station : section 내에 속한 상행역에 대하여 ) {
+        if (새로 추가할 구간의 상행역이 station 과 같다면 ) {
+             i 번째에 새로운 구간을 추가
+             i+1 번째의 구간을 update
             }
         } 
     } 
 }
+
+case i)
+예를 들어 [A,B] - [B,C] 에 [B,X] 를 추가하는 상황이라면
+목표 상태는 [A,B] - [B,X] - [X,C] 이라고 설정하자.
+
+[B, X] 의 B 와 일치하는 첫 번째 구간 [A, B] 의 B 이다. (i=1)
+그러면 (i = 1) 에
+   새로운 구간 [B, X] 를 추가한다.
+        sections = [A,B] - [B,X] - [B,C]
+그러면 (i+1=2) 구간인 [B,C] 의 상행역을 새로운 구간의 하행역인 X 으로 변경해주면
+        sections = [A,B] - [B,X] - [X, C] 가 된다.
+       
+
+case ii) 
+이번에는 [A,B] - [B,C] 에 [A,X] 를 추가하는 상황이라면
+    목표 상태는 [A,X] - [X,B] - [B,C] 이다.
+그러면 (i = 0) 에
+    새로운 구간인 [A, X] 를 추가한다.
+    sections = [A,X] - [A,B] - [B,C]
+그리고 (i+1 = 1) 구간인 [A,B] 의 상행역을 새로운 구간의 하행역인 X 으로 변경하면
+    sections = [A,X] - [X,B] - [B,C] 가 된다.
 ```
