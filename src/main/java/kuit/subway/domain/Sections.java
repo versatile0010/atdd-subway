@@ -59,14 +59,15 @@ public class Sections {
     private void addSectionAtBetween(Section section) {
         Station upStation = section.getUpStation();
         Station downStation = section.getDownStation();
+        Line line = section.getLine();
         for (int i = 0; i < sections.size(); i++) {
             Section curSection = sections.get(i);
             Station curDownStation = curSection.getDownStation();
             Station curUpStation = curSection.getUpStation();
             for (Station station : new Station[]{curUpStation, curDownStation}) {
                 if (station.equals(upStation)) {
-                    sections.add(i + 1, Section.from(curDownStation, downStation, section.getLine()));
                     sections.add(i, section);
+                    sections.set(i+1, Section.from(curDownStation ,upStation, line));
                     return;
                 }
             }
