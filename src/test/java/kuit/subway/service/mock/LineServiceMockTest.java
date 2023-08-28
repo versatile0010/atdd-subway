@@ -62,7 +62,7 @@ public class LineServiceMockTest {
         강남상행_건입하행구간 = Section.createMock(2L, 건대입구역, 강남역, 이호선);
     }
 
-    @DisplayName("강남역-서초역 이호선 노선 생성 Mock Test")
+    @DisplayName("강남역과 서초역을 구간으로 가지는 이호선을 만들 수 있다.")
     @Test
     void createLine() {
         // given
@@ -79,7 +79,7 @@ public class LineServiceMockTest {
     }
 
 
-    @DisplayName("중복된 역으로 이호선 노선 생성 Mock Test")
+    @DisplayName("중복된 역으로만 이루어진 구간으로 지하철 노선을 생성할 수 없다.")
     @Test
     void createWithDuplicatedStations() {
         // given
@@ -93,7 +93,7 @@ public class LineServiceMockTest {
         verify(sectionRepository, times(0)).save(any());
     }
 
-    @DisplayName("지하철 노선 조회 Mock test")
+    @DisplayName("line-id 으로 지하철 노선 정보를 조회할 수 있다.")
     @Test
     void addLine() {
         // given
@@ -111,7 +111,7 @@ public class LineServiceMockTest {
         );
     }
 
-    @DisplayName("지하철 노선 업데이트 Mock test")
+    @DisplayName("지하철 노선을 수정할 수 있다.")
     @Test
     void updateLine() {
         // given
@@ -128,7 +128,7 @@ public class LineServiceMockTest {
         verify(lineRepository, times(1)).findById(1L);
     }
 
-    @DisplayName("지하철 노선 삭제 Mock Test")
+    @DisplayName("지하철 노선을 삭제할 수 있다.")
     @Test
     void deleteLine() {
         // given
@@ -145,7 +145,7 @@ public class LineServiceMockTest {
         verify(sectionRepository, times(0)).delete(any());
     }
 
-    @DisplayName("구간 생성 Mock test ")
+    @DisplayName("강남역과 서초역으로 이루어진 구간을 빈 노선에 생성할 수 있다.")
     @Test
     void addSection() {
         // given
@@ -161,7 +161,7 @@ public class LineServiceMockTest {
         );
     }
 
-    @DisplayName("단일 구간을 가진 노선에 대한 구간 삭제 Mock test ")
+    @DisplayName("단일 구간을 가지는 노선에 대해서는 구간을 제거할 수 없다.")
     @Test
     void removeSectionAtSingleSections() {
         // given
@@ -173,7 +173,7 @@ public class LineServiceMockTest {
         assertThrows(SingleSectionRemoveException.class, () -> lineService.removeSection(request, 1L));
     }
 
-    @DisplayName("두개 이상의 구간을 가진 노선에 대한 구간 삭제 Mock test ")
+    @DisplayName("두개 이상의 구간을 가지는 노선에 대해서 마지막 구간 제거가 가능하다. ")
     @Test
     void removeSectionAtMultipleSections() {
         // given
