@@ -190,4 +190,22 @@ public class LineServiceMockTest {
                 () -> assertEquals(2L, response.getId())
         );
     }
+
+    @DisplayName("(서초역-강남역) 노선에 (건대입구역-서초역) 구간을 상행종점 구간으로 등록할 수 있다.")
+    @Test
+    void addSectionAtFirst() {
+        // given
+        when(stationRepository.findById(2L)).thenReturn(Optional.of(서초역));
+        when(stationRepository.findById(3L)).thenReturn(Optional.of(건대입구역));
+
+        when(lineRepository.findById(1L)).thenReturn(Optional.of(이호선));
+        이호선.addSection(서초상행_강남하행구간, SECTION_AT_LAST);
+        // when
+        CreateSectionRequest request = 지하철_구간_생성_데이터_만들기(2L, 3L, SECTION_AT_FIRST);
+        CreateSectionResponse response = lineService.addSection(request, 1L);
+        // then
+        assertAll(
+                () -> assertEquals(1L, response.getId())
+        );
+    }
 }
