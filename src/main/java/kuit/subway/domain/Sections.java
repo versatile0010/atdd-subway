@@ -3,10 +3,7 @@ package kuit.subway.domain;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.OneToMany;
-import kuit.subway.exception.badrequest.AlreadyExistStationException;
-import kuit.subway.exception.badrequest.InvalidUpStationException;
-import kuit.subway.exception.badrequest.NonFinalSectionRemoveException;
-import kuit.subway.exception.badrequest.SingleSectionRemoveException;
+import kuit.subway.exception.badrequest.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,22 +13,65 @@ import java.util.Objects;
 public class Sections {
     @OneToMany(mappedBy = "line", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<Section> sections = new ArrayList<>();
-
     private final int ZERO = 0;
+    private final int HEAD = 0;
+    private final int SECTION_AT_BETWEEN = 2;
+    private final int SECTION_AT_FIRST = 1;
+    private final int SECTION_AT_LAST = 0;
 
-    public void add(Section section) {
+    public void add(Section section, int sectionType) {
+        if (sections.size() == 0) {
+            sections.add(section);
+            return;
+        }
+        List<Station> stations = getStations();
+        validateAddSection(stations, section);
+        switch (sectionType) {
+            case SECTION_AT_BETWEEN -> addSectionAtBetween(section);
+            case SECTION_AT_FIRST -> addSectionAtFirst(section);
+            case SECTION_AT_LAST -> addSectionAtLast(section);
+        }
+    }
+
+    private void addSectionAtFirst(Section section) {
+        Station downStation = section.getDownStation();
+        Section firstSection = sections.get(0);
+        Station upStationOfFirstSection = firstSection.getUpStation();
+        // firstSection 의 Up 이랑 section 의 down 이랑 다르면 exception
+        if (!upStationOfFirstSection.equals(downStation)) {
+            throw new InvalidAddFirstSectionException();
+        }
+        sections.add(HEAD, section);
+    }
+
+    private void addSectionAtLast(Section section) {
+        Station upStation = section.getUpStation();
+        final int LAST = sections.size() - 1;
+        Section lastSection = sections.get(LAST);
+        Station downStationOfLastSection = lastSection.getDownStation();
+        // lastSection.down 이랑 section 의 up 이 다르면 exception
+        if (!downStationOfLastSection.equals(upStation)) {
+            throw new InvalidAddLastSectionException();
+        }
+        sections.add(LAST + 1, section);
+    }
+
+    private void addSectionAtBetween(Section section) {
         Station upStation = section.getUpStation();
         Station downStation = section.getDownStation();
-        if (sections.size() != 0) {
-            /* 현재 노선에 구간이 하나도 없으면 구간 추가에 대한 검증을 거치지 않음
-               2단계 미션에서 요구사항이 추가되면 수정이 필요함. */
-            List<Station> stations = getStations(); // 등록된 역을 모두 가져와서
-            int stationCount = stations.size();
-            Long finalDownStationId = getFinalDownStationId(stations, stationCount); // 하행 종점역 아이디를 얻는다.
-            validateUpStation(upStation.getId(), finalDownStationId);
-            validateDownStation(downStation.getId());
+        for (int i = 0; i < sections.size(); i++) {
+            Section curSection = sections.get(i);
+            Station curDownStation = curSection.getDownStation();
+            Station curUpStation = curSection.getUpStation();
+            for (Station station : new Station[]{curUpStation, curDownStation}) {
+                if (station.equals(upStation)) {
+                    sections.add(i + 1, Section.from(curDownStation, downStation, section.getLine()));
+                    sections.add(i, section);
+                    return;
+                }
+            }
         }
-        sections.add(section);
+
     }
 
     public void remove(Long stationId) {
@@ -79,35 +119,24 @@ public class Sections {
         return stations;
     }
 
-    private Long getFinalDownStationId(List<Station> stations, int stationCount) {
-        return stations.get(stationCount - 1).getId();
-    }
-
-    private Long getFinalUpStationId(List<Station> stations) {
-        return stations.get(0).getId();
-    }
-
-    private void validateUpStation(Long newUpStationId, Long finalDownStationId) {
-        // 새로운 구간의 상행역은 해당 노선에 등록되어있는 하행 종점역이어야 한다.
-        if (!Objects.equals(newUpStationId, finalDownStationId)) {
-            throw new InvalidUpStationException();
-        }
-    }
-
-    private void validateDownStation(Long newDownStationId) {
-        // 새로운 구간의 하행역은 해당 노선에 등록되어있는 역일 수 없다.
-        List<Station> downStations = getDownStations();
-        validateExistStation(newDownStationId, downStations);
-        List<Station> upStations = getUpStations();
-        validateExistStation(newDownStationId, upStations);
-    }
-
-    private void validateExistStation(Long newStationId, List<Station> stations) {
-        // stations 리스트에 newStationId 와 동일한 station 이 존재하면 예외 throw
+    private void validateAddSection(List<Station> stations, Section section) {
+        Station upStation = section.getUpStation();
+        Station downStation = section.getDownStation();
+        boolean isUpStationExists = false;
+        boolean isDownStationExists = false;
         for (Station station : stations) {
-            if (Objects.equals(newStationId, station.getId())) {
-                throw new AlreadyExistStationException();
+            if (station.equals(upStation)) {
+                isUpStationExists = true;
             }
+            if (station.equals(downStation)) {
+                isDownStationExists = true;
+            }
+            if (isUpStationExists && isDownStationExists) {
+                throw new AlreadyExistStationsException();
+            }
+        }
+        if (!isUpStationExists && !isDownStationExists) {
+            throw new InvalidAddSectionsException();
         }
     }
 }
