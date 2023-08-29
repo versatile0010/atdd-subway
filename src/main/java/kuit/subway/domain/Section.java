@@ -26,23 +26,28 @@ public class Section extends BaseTimeEntity {
     @JoinColumn(name = "line_id")
     private Line line;
 
-    private Section(Station downStation, Station upStation, Line line) {
+    private Long distance;
+
+    private Section(Station downStation, Station upStation, Line line, Long distance) {
         this.downStation = downStation;
         this.upStation = upStation;
         this.line = line;
+        this.distance = distance;
     }
 
-    public static Section from(Station downStation, Station upStation, Line line) {
-        return new Section(downStation, upStation, line);
+    public static Section from(Station downStation, Station upStation, Line line, Long distance) {
+        return new Section(downStation, upStation, line, distance);
     }
 
-    private Section(Long id, Station downStation, Station upStation, Line line) {
+    private Section(Long id, Station downStation, Station upStation, Line line, Long distance) {
         this.id = id;
         this.downStation = downStation;
         this.upStation = upStation;
         this.line = line;
+        this.distance = distance;
     }
-    public static Section createMock(Long id, Station downStation, Station upStation, Line line) {
-        return new Section(id, downStation, upStation, line);
+
+    public static Section createMock(Long id, Station downStation, Station upStation, Line line, Long distance) {
+        return new Section(id, downStation, upStation, line, distance);
     }
 }

@@ -57,9 +57,9 @@ public class LineServiceMockTest {
         서초역 = Station.createMock(2L, "서초역");
         건대입구역 = Station.createMock(3L, "건대입구역");
         성수역 = Station.createMock(4L, "성수역");
-        이호선 = Line.createMock(1L, "이호선", 10, "green");
-        서초상행_강남하행구간 = Section.createMock(1L, 강남역, 서초역, 이호선);
-        강남상행_건입하행구간 = Section.createMock(2L, 건대입구역, 강남역, 이호선);
+        이호선 = Line.createMock(1L, "이호선", 10L, "green");
+        서초상행_강남하행구간 = Section.createMock(1L, 강남역, 서초역, 이호선, 10L);
+        강남상행_건입하행구간 = Section.createMock(2L, 건대입구역, 강남역, 이호선, 10L);
     }
 
     @DisplayName("강남역과 서초역을 구간으로 가지는 이호선을 만들 수 있다.")
@@ -70,7 +70,7 @@ public class LineServiceMockTest {
         when(stationRepository.findById(2L)).thenReturn(Optional.of(서초역));
         when(lineRepository.save(any())).thenReturn(이호선);
         // when
-        CreateLineResponse response = lineService.createOne(지하철_노선_생성_데이터_만들기("이호선", "green", 10, 1L, 2L));
+        CreateLineResponse response = lineService.createOne(지하철_노선_생성_데이터_만들기("이호선", "green", 10L, 1L, 2L));
         // then
         assertEquals(1L, response.getId());
         verify(stationRepository, times(2)).findById(anyLong());
@@ -86,7 +86,7 @@ public class LineServiceMockTest {
         when(stationRepository.findById(1L)).thenReturn(Optional.of(강남역));
         // when
         assertThrows(BadRequestException.class,
-                () -> lineService.createOne(지하철_노선_생성_데이터_만들기("이호선", "green", 10, 1L, 1L)));
+                () -> lineService.createOne(지하철_노선_생성_데이터_만들기("이호선", "green", 10L, 1L, 1L)));
         // then
         verify(stationRepository, times(2)).findById(anyLong());
         verify(lineRepository, times(0)).save(any());
@@ -118,7 +118,7 @@ public class LineServiceMockTest {
         when(lineRepository.findById(1L)).thenReturn(Optional.of(이호선));
         이호선.addSection(서초상행_강남하행구간, SECTION_AT_LAST);
         // when
-        ModifyLineRequest request = 지하철_노선_수정_데이터_만들기("삼호선", "orange", 99, 3L, 4L);
+        ModifyLineRequest request = 지하철_노선_수정_데이터_만들기("삼호선", "orange", 99L, 3L, 4L);
         ModifyLineResponse response = lineService.updateLine(request, 1L);
         // then
         assertAll(
@@ -153,7 +153,7 @@ public class LineServiceMockTest {
         when(stationRepository.findById(1L)).thenReturn(Optional.of(강남역));
         when(stationRepository.findById(2L)).thenReturn(Optional.of(서초역));
         // when
-        CreateSectionRequest request = 지하철_구간_생성_데이터_만들기(1L, 2L, SECTION_AT_LAST);
+        CreateSectionRequest request = 지하철_구간_생성_데이터_만들기(1L, 2L, SECTION_AT_LAST, 10L);
         CreateSectionResponse response = lineService.addSection(request, 1L);
         // then
         assertAll(
@@ -201,7 +201,7 @@ public class LineServiceMockTest {
         when(lineRepository.findById(1L)).thenReturn(Optional.of(이호선));
         이호선.addSection(서초상행_강남하행구간, SECTION_AT_LAST);
         // when
-        CreateSectionRequest request = 지하철_구간_생성_데이터_만들기(2L, 3L, SECTION_AT_FIRST);
+        CreateSectionRequest request = 지하철_구간_생성_데이터_만들기(2L, 3L, SECTION_AT_FIRST, 10L);
         CreateSectionResponse response = lineService.addSection(request, 1L);
         // then
         assertAll(
