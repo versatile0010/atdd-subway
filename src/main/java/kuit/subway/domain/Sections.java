@@ -66,13 +66,21 @@ public class Sections {
             Station curUpStation = curSection.getUpStation();
             for (Station station : new Station[]{curUpStation, curDownStation}) {
                 if (station.equals(upStation)) {
+                    validateAddSectionDistance(curSection, section);
+                    Long diff = curSection.getDistance() - section.getDistance();
                     sections.add(i, section);
-                    sections.set(i+1, Section.from(curDownStation ,upStation, line));
+                    sections.set(i + 1, Section.from(curDownStation, upStation, line, diff));
                     return;
                 }
             }
         }
+    }
 
+    private void validateAddSectionDistance(Section section, Section insertedSection) {
+        // section 에 insertedSection 을 사이에 끼어넣는 상황
+        if (section.getDistance() <= insertedSection.getDistance()) {
+            throw new InvalidAddSectionDistanceException();
+        }
     }
 
     public void remove(Long stationId) {
