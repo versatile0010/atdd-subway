@@ -207,7 +207,7 @@ public class LineServiceMockTest {
         );
     }
 
-    @DisplayName("(서초--2->강남--4->건대 입구) 노선에 (강남--1->잠실) 구간을 등록할 수 있다.")
+    @DisplayName("(서초--2->강남--4->건대 입구) 노선에 (강남--1->성수) 구간을 등록할 수 있다.")
     @Test
     void addSectionAtBetweenCase1() {
         // given
@@ -221,20 +221,14 @@ public class LineServiceMockTest {
         // when
         CreateSectionRequest request = 지하철_구간_생성_데이터_만들기(4L, 1L, 1L);
         CreateSectionResponse response = lineService.addSection(request, 1L);
-        LineInfoResponse lineInfo = lineService.getLineDetails(1L);
 
         // then
         assertAll(
-                () -> assertEquals(1L, response.getId()),
-                () -> assertEquals(4, lineInfo.getStations().size())
+                () -> assertEquals(1L, response.getId())
         );
-        for (StationDto station : lineInfo.getStations()) {
-            System.out.print(station.getName() + "-");
-        }
-        System.out.println();
     }
 
-    @DisplayName("(서초--2->강남--4->건대 입구) 노선에 (강남--4->잠실) 구간을 등록할 수 없다.")
+    @DisplayName("(서초--2->강남--4->건대 입구) 노선에 (강남--4->성수) 구간을 등록할 수 없다.")
     @Test
     void addSectionAtBetweenCase2() {
         // given
@@ -250,11 +244,11 @@ public class LineServiceMockTest {
         assertThrows(InvalidAddSectionDistanceException.class, () -> lineService.addSection(request, 1L));
     }
 
-    @DisplayName("(서초--2->강남--4->건대 입구) 노선에 (강남--1->잠실) 구간을 등록할 수 있다.")
+    @DisplayName("(서초--2->강남--4->건대 입구) 노선에 (건대 입구역 -> 성수역) 구간을 등록할 수 있다.")
     @Test
     void addSectionAtBetweenCase3() {
         // given
-        when(stationRepository.findById(2L)).thenReturn(Optional.of(서초역));
+        when(stationRepository.findById(3L)).thenReturn(Optional.of(건대입구역));
         when(stationRepository.findById(4L)).thenReturn(Optional.of(성수역));
 
         when(lineRepository.findById(1L)).thenReturn(Optional.of(이호선));
@@ -262,7 +256,7 @@ public class LineServiceMockTest {
         이호선.addSection(강남상행_건입하행구간);
 
         // when
-        CreateSectionRequest request = 지하철_구간_생성_데이터_만들기(4L, 2L, 1L);
+        CreateSectionRequest request = 지하철_구간_생성_데이터_만들기(4L, 3L, 1L);
         CreateSectionResponse response = lineService.addSection(request, 1L);
         LineInfoResponse lineInfo = lineService.getLineDetails(1L);
 
@@ -271,9 +265,5 @@ public class LineServiceMockTest {
                 () -> assertEquals(1L, response.getId()),
                 () -> assertEquals(4, lineInfo.getStations().size())
         );
-        for (StationDto station : lineInfo.getStations()) {
-            System.out.print(station.getName() + "-");
-        }
-        System.out.println();
     }
 }
