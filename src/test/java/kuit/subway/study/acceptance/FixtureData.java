@@ -20,8 +20,8 @@ public class FixtureData {
         return new ModifyLineRequest(color, distance, name, downStationId, upStationId);
     }
 
-    public static CreateSectionRequest 지하철_구간_생성_데이터_만들기(Long downStationId, Long upStationId, int sectionType, Long distance) {
-        return new CreateSectionRequest(downStationId, upStationId, sectionType, distance);
+    public static CreateSectionRequest 지하철_구간_생성_데이터_만들기(Long downStationId, Long upStationId, Long distance) {
+        return new CreateSectionRequest(downStationId, upStationId, distance);
     }
 
     public static DeleteSectionRequest 지하철_구간_삭제_데이터_만들기(Long sectionId) {

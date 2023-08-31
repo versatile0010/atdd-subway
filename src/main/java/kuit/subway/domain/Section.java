@@ -50,4 +50,12 @@ public class Section extends BaseTimeEntity {
     public static Section createMock(Long id, Station downStation, Station upStation, Line line, Long distance) {
         return new Section(id, downStation, upStation, line, distance);
     }
+
+    public void setUpStation(Station station) {
+        this.upStation = station;
+    }
+
+    public void setDistance(Long distance) {
+        this.distance = distance;
+    }
 }

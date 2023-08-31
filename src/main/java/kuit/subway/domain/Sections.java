@@ -15,22 +15,35 @@ public class Sections {
     private List<Section> sections = new ArrayList<>();
     private final int ZERO = 0;
     private final int HEAD = 0;
-    private final int SECTION_AT_BETWEEN = 2;
-    private final int SECTION_AT_FIRST = 1;
-    private final int SECTION_AT_LAST = 0;
 
-    public void add(Section section, int sectionType) {
-        if (sections.size() == 0) {
+    public void add(Section section) {
+        if (sections.isEmpty()) {
             sections.add(section);
             return;
         }
         List<Station> stations = getStations();
         validateAddSection(stations, section);
-        switch (sectionType) {
-            case SECTION_AT_BETWEEN -> addSectionAtBetween(section);
-            case SECTION_AT_FIRST -> addSectionAtFirst(section);
-            case SECTION_AT_LAST -> addSectionAtLast(section);
+        if (isSectionLast(section, stations)) {
+            addSectionAtLast(section);
+            return;
         }
+        if (isSectionFirst(section, stations)) {
+            addSectionAtFirst(section);
+            return;
+        }
+        addSectionAtBetween(section);
+    }
+
+    private boolean isSectionLast(Section section, List<Station> stations) {
+        Station upStation = section.getUpStation();
+        Station finalStation = stations.get(stations.size() - 1);
+        return finalStation.equals(upStation);
+    }
+
+    private boolean isSectionFirst(Section section, List<Station> stations) {
+        Station downStation = section.getDownStation();
+        Station firstStation = stations.get(0);
+        return firstStation.equals(downStation);
     }
 
     private void addSectionAtFirst(Section section) {
@@ -66,10 +79,11 @@ public class Sections {
             Station curUpStation = curSection.getUpStation();
             for (Station station : new Station[]{curUpStation, curDownStation}) {
                 if (station.equals(upStation)) {
-                    validateAddSectionDistance(curSection, section);
+                    validateAddSectionDistance(sections.get(i + 1), section);
                     Long diff = curSection.getDistance() - section.getDistance();
-                    sections.add(i, section);
-                    sections.set(i + 1, Section.from(curDownStation, upStation, line, diff));
+                    sections.add(i + 1, section);
+                    sections.get(i + 2).setUpStation(downStation);
+                    sections.get(i + 2).setDistance(diff);
                     return;
                 }
             }
@@ -77,7 +91,7 @@ public class Sections {
     }
 
     private void validateAddSectionDistance(Section section, Section insertedSection) {
-        // section 에 insertedSection 을 사이에 끼어넣는 상황
+        // section 에 insertedSection 을 사이에 끼워넣는 상황
         if (section.getDistance() <= insertedSection.getDistance()) {
             throw new InvalidAddSectionDistanceException();
         }

@@ -44,8 +44,8 @@ public class Line extends BaseTimeEntity {
         this.color = request.getColor();
     }
 
-    public void addSection(Section section, int sectionType) {
-        sections.add(section, sectionType);
+    public void addSection(Section section) {
+        sections.add(section);
     }
 
     public void removeSection(Long stationId) {
