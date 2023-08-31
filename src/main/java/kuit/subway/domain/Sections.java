@@ -4,16 +4,19 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.OneToMany;
 import kuit.subway.exception.badrequest.*;
+import kuit.subway.exception.notfound.NotFoundSectionException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
+@Slf4j
 @Embeddable
 public class Sections {
-    @OneToMany(mappedBy = "line", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(mappedBy = "line", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private List<Section> sections = new ArrayList<>();
-    private final int ZERO = 0;
     private final int HEAD = 0;
 
     public void add(Section section) {
@@ -32,6 +35,7 @@ public class Sections {
             return;
         }
         addSectionAtBetween(section);
+        showStations();
     }
 
     private boolean isSectionLast(Section section, List<Station> stations) {
@@ -42,13 +46,13 @@ public class Sections {
 
     private boolean isSectionFirst(Section section, List<Station> stations) {
         Station downStation = section.getDownStation();
-        Station firstStation = stations.get(0);
+        Station firstStation = stations.get(HEAD);
         return firstStation.equals(downStation);
     }
 
     private void addSectionAtFirst(Section section) {
         Station downStation = section.getDownStation();
-        Section firstSection = sections.get(0);
+        Section firstSection = sections.get(HEAD);
         Station upStationOfFirstSection = firstSection.getUpStation();
         // firstSection 의 Up 이랑 section 의 down 이랑 다르면 exception
         if (!upStationOfFirstSection.equals(downStation)) {
@@ -69,25 +73,33 @@ public class Sections {
         sections.add(LAST + 1, section);
     }
 
-    private void addSectionAtBetween(Section section) {
-        Station upStation = section.getUpStation();
-        Station downStation = section.getDownStation();
-        Line line = section.getLine();
-        for (int i = 0; i < sections.size(); i++) {
-            Section curSection = sections.get(i);
-            Station curDownStation = curSection.getDownStation();
-            Station curUpStation = curSection.getUpStation();
-            for (Station station : new Station[]{curUpStation, curDownStation}) {
-                if (station.equals(upStation)) {
-                    validateAddSectionDistance(sections.get(i + 1), section);
-                    Long diff = curSection.getDistance() - section.getDistance();
-                    sections.add(i + 1, section);
-                    sections.get(i + 2).setUpStation(downStation);
-                    sections.get(i + 2).setDistance(diff);
-                    return;
-                }
-            }
+    private void addSectionAtBetween(Section newSection) {
+        Section oldSection = findSectionByUpStation(newSection.getUpStation());
+        validateAddSectionDistance(oldSection, newSection);
+        sections.add(newSection);
+        oldSection.updateUpStation(newSection.getDownStation(), oldSection.getDistance() - newSection.getDistance());
+    }
+
+    private Section findSectionByUpStation(Station station) {
+        return sections.stream().filter(section -> section.getUpStation().equals(station))
+                .findFirst()
+                .orElseThrow(NotFoundSectionException::new);
+    }
+
+    private Section findSectionByDownStation(Station station) {
+        return sections.stream().filter(section -> section.getDownStation().equals(station))
+                .findFirst()
+                .orElseThrow(NotFoundSectionException::new);
+    }
+
+    private void showStations() {
+        StringBuilder sb = new StringBuilder("지하철 노선 목록 출력: (상행 종점)");
+        for (Station station : getStations()) {
+            sb.append(station.getName()).append("->");
         }
+        sb.replace(sb.length()-2, sb.length(), "");
+        sb.append("(하행 종점)");
+        log.info(sb.toString());
     }
 
     private void validateAddSectionDistance(Section section, Section insertedSection) {
@@ -114,32 +126,32 @@ public class Sections {
         sections.remove(lastSectionIdx); // 가장 끝 구간을 삭제함. (현재 요구 사항에서는 마지막 구간만 제거 가능)
     }
 
-    public List<Station> getDownStations() {
-        return sections
-                .stream()
-                .map(Section::getDownStation)
-                .toList();
-    }
-
-    public List<Station> getUpStations() {
-        return sections
-                .stream()
-                .map(Section::getUpStation)
-                .toList();
+    private Optional<Section> findDownSection(Station station) {
+        return sections.stream()
+                .filter(section -> section.getUpStation().equals(station))
+                .findFirst();
     }
 
     public List<Station> getStations() {
         List<Station> stations = new ArrayList<>();
-        for (int i = ZERO; i < sections.size(); i++) {
-            Section cur = sections.get(i);
-            if (i == ZERO) {
-                stations.add(cur.getUpStation());
-                stations.add(cur.getDownStation());
-                continue;
-            }
-            stations.add(cur.getDownStation());
-        }
+        Section firstSection = sections.get(HEAD);
+        Station upStation = firstSection.getUpStation();
+
+        stations.add(upStation); // 상행 종점역
+        Optional<Section> section = Optional.of(findSectionByUpStation(upStation));
+        updateStationsRecursive(stations, section);
+
         return stations;
+    }
+
+
+    private void updateStationsRecursive(List<Station> stations, Optional<Section> section) {
+        if (section.isEmpty()) {
+            return;
+        }
+        Station downStation = section.get().getDownStation();
+        stations.add(downStation);
+        updateStationsRecursive(stations, findDownSection(downStation));
     }
 
     private void validateAddSection(List<Station> stations, Section section) {

@@ -51,8 +51,13 @@ public class Section extends BaseTimeEntity {
         return new Section(id, downStation, upStation, line, distance);
     }
 
-    public void setUpStation(Station station) {
+    public void updateUpStation(Station station, Long distance) {
         this.upStation = station;
+        this.distance = distance;
+    }
+
+    public void setDownStation(Station station) {
+        this.downStation = station;
     }
 
     public void setDistance(Long distance) {
