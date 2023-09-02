@@ -25,7 +25,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static kuit.subway.exception.CustomExceptionContext.INVALID_ADD_SECTION_DISTANCE_ERROR;
 import static kuit.subway.study.acceptance.FixtureData.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -143,22 +146,6 @@ public class LineServiceMockTest {
         verify(sectionRepository, times(0)).delete(any());
     }
 
-    @DisplayName("강남역과 서초역으로 이루어진 구간을 빈 노선에 생성할 수 있다.")
-    @Test
-    void addSection() {
-        // given
-        when(lineRepository.findById(1L)).thenReturn(Optional.of(이호선));
-        when(stationRepository.findById(1L)).thenReturn(Optional.of(강남역));
-        when(stationRepository.findById(2L)).thenReturn(Optional.of(서초역));
-        // when
-        CreateSectionRequest request = 지하철_구간_생성_데이터_만들기(1L, 2L, 10L);
-        CreateSectionResponse response = lineService.addSection(request, 1L);
-        // then
-        assertAll(
-                () -> assertEquals(1L, response.getId())
-        );
-    }
-
     @DisplayName("단일 구간을 가지는 노선에 대해서는 구간을 제거할 수 없다.")
     @Test
     void removeSectionAtSingleSections() {
@@ -189,10 +176,10 @@ public class LineServiceMockTest {
         );
     }
 
-    @DisplayName("(서초역-강남역) 노선에 (건대입구역-서초역) 구간을 상행종점 구간으로 등록할 수 있다.")
+    @DisplayName("상행 종점 구간을 추가할 수 있다.")
     @Test
     void addSectionAtFirst() {
-        // given
+        // given  (서초역-강남역) 노선에 (건대입구역-서초역) 구간을 상행종점 구간으로 등록할 수 있다.
         when(stationRepository.findById(2L)).thenReturn(Optional.of(서초역));
         when(stationRepository.findById(3L)).thenReturn(Optional.of(건대입구역));
 
@@ -202,15 +189,15 @@ public class LineServiceMockTest {
         CreateSectionRequest request = 지하철_구간_생성_데이터_만들기(2L, 3L, 10L);
         CreateSectionResponse response = lineService.addSection(request, 1L);
         // then
-        assertAll(
-                () -> assertEquals(1L, response.getId())
-        );
+        assertThat(response.getStations()).hasSize(3)
+                .extracting("name")
+                .containsExactly("건대입구역", "서초역", "강남역");
     }
 
-    @DisplayName("(서초--2->강남--4->건대 입구) 노선에 (강남--1->성수) 구간을 등록할 수 있다.")
+    @DisplayName("기존에 존재하는 노선 사이에 새로운 구간을 추가할 수 있다.")
     @Test
     void addSectionAtBetweenCase1() {
-        // given
+        // given (서초--2->강남--4->건대 입구) 노선에 (강남--1->성수) 구간을 등록할 수 있다.
         when(stationRepository.findById(1L)).thenReturn(Optional.of(강남역));
         when(stationRepository.findById(4L)).thenReturn(Optional.of(성수역));
 
@@ -223,15 +210,15 @@ public class LineServiceMockTest {
         CreateSectionResponse response = lineService.addSection(request, 1L);
 
         // then
-        assertAll(
-                () -> assertEquals(1L, response.getId())
-        );
+        assertThat(response.getStations()).hasSize(4)
+                .extracting("name")
+                .containsExactly("서초역", "강남역", "성수역", "건대입구역");
     }
 
-    @DisplayName("(서초--2->강남--4->건대 입구) 노선에 (강남--4->성수) 구간을 등록할 수 없다.")
+    @DisplayName("기존 구간보다 거리가 크거나 같은 구간은 추가할 수 없다.")
     @Test
     void addSectionAtBetweenCase2() {
-        // given
+        // given (서초--2->강남--4->건대 입구) 노선에 (강남--4->성수) 구간을 등록할 수 없다.
         when(stationRepository.findById(1L)).thenReturn(Optional.of(강남역));
         when(stationRepository.findById(4L)).thenReturn(Optional.of(성수역));
 
@@ -241,13 +228,16 @@ public class LineServiceMockTest {
         // when
         CreateSectionRequest request = 지하철_구간_생성_데이터_만들기(4L, 1L, 4L);
         // then
-        assertThrows(InvalidAddSectionDistanceException.class, () -> lineService.addSection(request, 1L));
+        assertThatThrownBy(() -> lineService.addSection(request, 1L))
+                .isInstanceOf(InvalidAddSectionDistanceException.class)
+                .extracting("code")
+                .isEqualTo(INVALID_ADD_SECTION_DISTANCE_ERROR.getCode());
     }
 
-    @DisplayName("(서초--2->강남--4->건대 입구) 노선에 (건대 입구역 -> 성수역) 구간을 등록할 수 있다.")
+    @DisplayName("하행 종점 구간을 추가할 수 있다.")
     @Test
     void addSectionAtBetweenCase3() {
-        // given
+        // given (서초--2->강남--4->건대 입구) 노선에 (건대 입구역 -> 성수역) 구간을 등록할 수 있다.
         when(stationRepository.findById(3L)).thenReturn(Optional.of(건대입구역));
         when(stationRepository.findById(4L)).thenReturn(Optional.of(성수역));
 
@@ -258,12 +248,10 @@ public class LineServiceMockTest {
         // when
         CreateSectionRequest request = 지하철_구간_생성_데이터_만들기(4L, 3L, 1L);
         CreateSectionResponse response = lineService.addSection(request, 1L);
-        LineInfoResponse lineInfo = lineService.getLineDetails(1L);
 
         // then
-        assertAll(
-                () -> assertEquals(1L, response.getId()),
-                () -> assertEquals(4, lineInfo.getStations().size())
-        );
+        assertThat(response.getStations()).hasSize(4)
+                .extracting("name")
+                .containsExactly("서초역", "강남역", "건대입구역", "성수역");
     }
 }
