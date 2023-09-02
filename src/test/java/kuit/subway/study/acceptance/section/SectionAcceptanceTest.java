@@ -25,9 +25,9 @@ public class SectionAcceptanceTest extends AcceptanceTest {
     private final Long 서초역_아이디 = 2L;
     private final Long 이호선_아이디 = 1L;
 
-    @DisplayName("지하철 구간 생성 요청이 올바르면, 구간이 생성되어야 한다.")
+    @DisplayName("하행 종점 구간을 추가할 수 있다.")
     @Test
-    public void 지하철_구간_생성_테스트() {
+    public void 하행종점_구간_생성_테스트() {
         // given 강남역하행과 서초역상행인 2호선을 생성하고 (서초역 -> 강남역)
         이호선_강남역하행_서초역상행_생성하기();
         지하철_노선_조회하기(이호선_아이디);
@@ -41,6 +41,46 @@ public class SectionAcceptanceTest extends AcceptanceTest {
         // then 구간이 생성되고 노선 Id 를 응답으로 받는다. {서초역 -> 강남역 -> 건대입구역}
 
         지하철_노선_조회하기(이호선_아이디);
+        응답결과_검증하기(extract, HttpStatus.CREATED);
+        응답바디값_기대값과_같은지_검증하기(extract, "id", 1);
+    }
+
+    @DisplayName("상행 종점 구간을 추가할 수 있다.")
+    @Test
+    public void 상행종점_구간_생성_테스트() {
+        // given 강남역하행과 서초역상행인 2호선을 생성하고 (서초역 -> 강남역)
+        이호선_강남역하행_서초역상행_생성하기();
+        지하철_노선_조회하기(이호선_아이디);
+        // when { 건대입구역 -> 서초역 } 구간을 추가 요청하면
+        CreateStationRequest 건대입구역_데이터 = 지하철_역_생성_데이터_만들기("건대입구역");
+        지하철_역_생성하기(건대입구역_데이터);
+        Long 건대입구역_아이디 = 3L;
+        구간_데이터 = 지하철_구간_생성_데이터_만들기(서초역_아이디, 건대입구역_아이디, 1L);
+        ExtractableResponse<Response> extract = 지하철_구간_생성하기(구간_데이터, 이호선_아이디);
+        // then 구간이 생성되고 노선 Id 를 응답으로 받는다. {건대입구역 -> 서초역 -> 강남역 }
+        응답결과_검증하기(extract, HttpStatus.CREATED);
+        응답바디값_기대값과_같은지_검증하기(extract, "id", 1);
+    }
+
+    @DisplayName("사이 구간을 추가할 수 있다.")
+    @Test
+    public void 사이_구간_생성_테스트() {
+        // given 강남역하행과 서초역상행인 2호선을 생성하고 (서초역 -> 강남역 -> 건대입구역)
+        이호선_강남역하행_서초역상행_생성하기();
+        지하철_노선_조회하기(이호선_아이디);
+        CreateStationRequest 건대입구역_데이터 = 지하철_역_생성_데이터_만들기("건대입구역");
+        지하철_역_생성하기(건대입구역_데이터);
+        Long 건대입구역_아이디 = 3L;
+        구간_데이터 = 지하철_구간_생성_데이터_만들기(건대입구역_아이디, 강남역_아이디, 10L);
+        지하철_구간_생성하기(구간_데이터, 이호선_아이디);
+        // when
+        CreateStationRequest 성수역_데이터 = 지하철_역_생성_데이터_만들기("성수역");
+        지하철_역_생성하기(성수역_데이터);
+        Long 성수역_아이디 = 4L;
+        구간_데이터 = 지하철_구간_생성_데이터_만들기(성수역_아이디, 강남역_아이디, 1L);
+        ExtractableResponse<Response> extract = 지하철_구간_생성하기(구간_데이터, 이호선_아이디);
+
+        // then 구간이 생성되고 노선 Id 를 응답으로 받는다. {건대입구역 -> 서초역 -> 강남역 }
         응답결과_검증하기(extract, HttpStatus.CREATED);
         응답바디값_기대값과_같은지_검증하기(extract, "id", 1);
     }
