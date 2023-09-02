@@ -35,12 +35,8 @@ public class Station extends BaseTimeEntity {
     }
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Station station = (Station) o;
-        return id != null
-                && Objects.equals(id, station.id)
-                && Objects.equals(name, station.name);
+        return Objects.equals(id, station.getId());
     }
 
     @Override
