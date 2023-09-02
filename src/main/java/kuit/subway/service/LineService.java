@@ -17,12 +17,14 @@ import kuit.subway.repository.LineRepository;
 import kuit.subway.repository.SectionRepository;
 import kuit.subway.repository.StationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
@@ -95,7 +97,7 @@ public class LineService {
         Section section = Section.from(downStation, upStation, line, request.getDistance());
 
         line.addSection(section); // 해당 노선에 대하여 구간 추가 및 검증
-        return new CreateSectionResponse(line.getId());
+        return CreateSectionResponse.of(line, line.getStations());
     }
 
     @Transactional
