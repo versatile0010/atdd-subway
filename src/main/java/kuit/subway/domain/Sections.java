@@ -35,7 +35,6 @@ public class Sections {
             return;
         }
         addSectionAtBetween(section);
-        showStations();
     }
 
     private boolean isSectionLast(Section section, List<Station> stations) {
@@ -63,41 +62,41 @@ public class Sections {
 
     private void addSectionAtLast(Section section) {
         Station upStation = section.getUpStation();
-        final int LAST = sections.size() - 1;
-        Section lastSection = sections.get(LAST);
+        int tail = sections.size() - 1;
+        Section lastSection = sections.get(tail);
         Station downStationOfLastSection = lastSection.getDownStation();
         // lastSection.down 이랑 section 의 up 이 다르면 exception
         if (!downStationOfLastSection.equals(upStation)) {
             throw new InvalidAddLastSectionException();
         }
-        sections.add(LAST + 1, section);
+        sections.add(tail + 1, section);
     }
 
     private void addSectionAtBetween(Section newSection) {
-        Section oldSection = findSectionByUpStation(newSection.getUpStation());
+        Section oldSection = findSectionByUpStation(newSection.getUpStation()).orElseThrow(NotFoundSectionException::new);
         validateAddSectionDistance(oldSection, newSection);
         sections.add(newSection);
         oldSection.updateUpStation(newSection.getDownStation(), oldSection.getDistance() - newSection.getDistance());
     }
 
-    private Section findSectionByUpStation(Station station) {
-        return sections.stream().filter(section -> section.getUpStation().equals(station))
-                .findFirst()
-                .orElseThrow(NotFoundSectionException::new);
+    private Optional<Section> findSectionByUpStation(Station station) {
+        return sections.stream()
+                .filter(section -> section.getUpStation().equals(station))
+                .findFirst();
     }
 
-    private Section findSectionByDownStation(Station station) {
-        return sections.stream().filter(section -> section.getDownStation().equals(station))
-                .findFirst()
-                .orElseThrow(NotFoundSectionException::new);
+    private Optional<Section> findSectionByDownStation(Station station) {
+        return sections.stream()
+                .filter(section -> section.getDownStation().equals(station))
+                .findFirst();
     }
 
-    private void showStations() {
+    public void showStations() {
         StringBuilder sb = new StringBuilder("지하철 노선 목록 출력: (상행 종점)");
         for (Station station : getStations()) {
             sb.append(station.getName()).append("->");
         }
-        sb.replace(sb.length()-2, sb.length(), "");
+        sb.replace(sb.length() - 2, sb.length(), "");
         sb.append("(하행 종점)");
         log.info(sb.toString());
     }
@@ -138,12 +137,11 @@ public class Sections {
         Station upStation = firstSection.getUpStation();
 
         stations.add(upStation); // 상행 종점역
-        Optional<Section> section = Optional.of(findSectionByUpStation(upStation));
+        Optional<Section> section = findSectionByUpStation(upStation);
         updateStationsRecursive(stations, section);
 
         return stations;
     }
-
 
     private void updateStationsRecursive(List<Station> stations, Optional<Section> section) {
         if (section.isEmpty()) {
