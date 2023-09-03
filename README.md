@@ -201,8 +201,179 @@
 ```
 
 ## ✅ MockTest 를 통해 Section 추가가 올바르게 이루어지는 지 확인해보았습니다.
+`assertThatThrownBy()` 를 적극적으로 활용하였습니다.
 
+1. 상행 종점 구간을 추가하는 경우
+```agsl
+    @DisplayName("상행 종점 구간을 추가할 수 있다.")
+    @Test
+    void addSectionAtFirst() {
+        // given  (서초역-강남역) 노선에 (건대입구역-서초역) 구간을 상행종점 구간으로 등록할 수 있다.
+        when(stationRepository.findById(2L)).thenReturn(Optional.of(서초역));
+        when(stationRepository.findById(3L)).thenReturn(Optional.of(건대입구역));
 
+        when(lineRepository.findById(1L)).thenReturn(Optional.of(이호선));
+        이호선.addSection(서초상행_강남하행구간);
+        // when
+        CreateSectionRequest request = 지하철_구간_생성_데이터_만들기(2L, 3L, 10L);
+        CreateSectionResponse response = lineService.addSection(request, 1L);
+        // then
+        assertThat(response.getStations()).hasSize(3)
+                .extracting("name")
+                .containsExactly("건대입구역", "서초역", "강남역");
+    }
+```
 
+2. 사이에 구간을 끼워넣는 경우
+```agsl
+    @DisplayName("기존에 존재하는 노선 사이에 새로운 구간을 추가할 수 있다.")
+    @Test
+    void addSectionAtBetweenCase1() {
+        // given (서초--2->강남--4->건대 입구) 노선에 (강남--1->성수) 구간을 등록할 수 있다.
+        when(stationRepository.findById(1L)).thenReturn(Optional.of(강남역));
+        when(stationRepository.findById(4L)).thenReturn(Optional.of(성수역));
+
+        when(lineRepository.findById(1L)).thenReturn(Optional.of(이호선));
+        이호선.addSection(서초상행_강남하행구간);
+        이호선.addSection(강남상행_건입하행구간);
+
+        // when
+        CreateSectionRequest request = 지하철_구간_생성_데이터_만들기(4L, 1L, 1L);
+        CreateSectionResponse response = lineService.addSection(request, 1L);
+
+        // then
+        assertThat(response.getStations()).hasSize(4)
+                .extracting("name")
+                .containsExactly("서초역", "강남역", "성수역", "건대입구역");
+    }
+```
+3. 하행 종점 구간을 추가하는 경우
+```agsl
+    @DisplayName("하행 종점 구간을 추가할 수 있다.")
+    @Test
+    void addSectionAtBetweenCase3() {
+        // given (서초--2->강남--4->건대 입구) 노선에 (건대 입구역 -> 성수역) 구간을 등록할 수 있다.
+        when(stationRepository.findById(3L)).thenReturn(Optional.of(건대입구역));
+        when(stationRepository.findById(4L)).thenReturn(Optional.of(성수역));
+
+        when(lineRepository.findById(1L)).thenReturn(Optional.of(이호선));
+        이호선.addSection(서초상행_강남하행구간);
+        이호선.addSection(강남상행_건입하행구간);
+
+        // when
+        CreateSectionRequest request = 지하철_구간_생성_데이터_만들기(4L, 3L, 1L);
+        CreateSectionResponse response = lineService.addSection(request, 1L);
+
+        // then
+        assertThat(response.getStations()).hasSize(4)
+                .extracting("name")
+                .containsExactly("서초역", "강남역", "건대입구역", "성수역");
+    }
+```
 
 ## ✅ 인수 테스트를 통해 Section 을 추가할 때 발생하는 쿼리들을 확인해보았습니다.
+### 1. (서초역 -> 강남역) 노선에 상행 종점 구간 (건대입구역->서초역)을 추가하는 경우
+```agsl
+HTTP/1.1 201 
+Location: /lines/1/sections
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Sun, 03 Sep 2023 05:09:54 GMT
+Keep-Alive: timeout=60
+Connection: keep-alive
+
+{
+    "id": 1,
+    "stations": [
+        {
+            "id": 3,
+            "name": "건대입구역"
+        },
+        {
+            "id": 2,
+            "name": "서초역"
+        },
+        {
+            "id": 1,
+            "name": "강남역"
+        }
+    ]
+}
+```
+위와 같은 구간 생성 시나리오에서 6 개의 쿼리가 발생하였습니다. (노선 조회 1회, 상행역 하행역 조회 각각 2회, section 조회 1회, station 조회 1회, section 저장 1회)
+- ` select l1_0.id,l1_0.color,l1_0.created_date,l1_0.distance,l1_0.modified_date,l1_0.name,l1_0.head from line l1_0 where l1_0.id=1; `
+-  `select s1_0.id,s1_0.created_date,s1_0.modified_date,s1_0.name from station s1_0 where s1_0.id=2;`
+-  `select s1_0.id,s1_0.created_date,s1_0.modified_date,s1_0.name from station s1_0 where s1_0.id=3;`
+-  `select s1_0.line_id,s1_0.id,s1_0.created_date,s1_0.distance,s1_0.down_station_id,s1_0.modified_date,s1_0.up_station_id from section s1_0 where array_contains('ar2: ARRAY [CAST(1 AS BIGINT), NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL]',s1_0.line_id);`
+   - 이 .. NULL 배열의 정체는 무엇일까요?? 😥😱 찾아보고 있는데... 아시는 분 있으시면 알려주시면 감사드려요 ㅜ_ㅜ 
+-  `select s1_0.id,s1_0.created_date,s1_0.modified_date,s1_0.name from station s1_0 where s1_0.id=1;`
+   - 이 쿼리가 발생하는 이유를 찾는 중입니다 ㅜ_ㅜ 왜지..?
+-  `insert into section (created_date,distance,down_station_id,line_id,modified_date,up_station_id,id) values ('2023-09-03T14:09:54.860+0900',1,2,1,'2023-09-03T14:09:54.860+0900',3,default);`
+
+### 2. (서초역 -> 강남역) 노선에 (강남역 -> 건대입구역) 을 추가하는 경우
+```agsl
+HTTP/1.1 201 
+Location: /lines/1/sections
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Sun, 03 Sep 2023 05:16:50 GMT
+Keep-Alive: timeout=60
+Connection: keep-alive
+
+{
+    "id": 1,
+    "stations": [
+        {
+            "id": 2,
+            "name": "서초역"
+        },
+        {
+            "id": 1,
+            "name": "강남역"
+        },
+        {
+            "id": 3,
+            "name": "건대입구역"
+        }
+    ]
+}
+```
+- 발생 쿼리는 이전 경우와 동일하게 조회 5번, section 저장 1회 발생합니다.
+
+### 3. (서초역 -> 강남역 -> 건대입구역) 노선에 (강남역 -> 성수역) 구간을 추가하는 경우
+```agsl
+HTTP/1.1 201 
+Location: /lines/1/sections
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Sun, 03 Sep 2023 05:19:55 GMT
+Keep-Alive: timeout=60
+Connection: keep-alive
+
+{
+    "id": 1,
+    "stations": [
+        {
+            "id": 2,
+            "name": "서초역"
+        },
+        {
+            "id": 1,
+            "name": "강남역"
+        },
+        {
+            "id": 4,
+            "name": "성수역"
+        },
+        {
+            "id": 3,
+            "name": "건대입구역"
+        }
+    ]
+}
+```
+
+사이 구간에 추가하는 경우에는 조회 5회, 저장 1회 그리고 업데이트 1회으로 총 7회의 쿼리가 발생했습니다.
+업데이트 쿼리는 oldSection 을 갱신해주는 과정에서 발생한 것으로 사료됩니다!!
+
+` update section set created_date='2023-09-03T14:19:55.579+0900',distance=9,down_station_id=3,line_id=1,modified_date='2023-09-03T14:19:55.633+0900',up_station_id=4 where id=2; `
