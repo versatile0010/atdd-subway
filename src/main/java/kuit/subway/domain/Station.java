@@ -33,10 +33,14 @@ public class Station extends BaseTimeEntity {
     public static Station createMock(Long id, String name) {
         return new Station(id, name);
     }
+
     @Override
     public boolean equals(Object o) {
+        if (!(o instanceof Station)) {
+            return false;
+        }
         Station station = (Station) o;
-        return Objects.equals(id, station.getId());
+        return station.getId().equals(id) && station.getName().equals(name);
     }
 
     @Override
