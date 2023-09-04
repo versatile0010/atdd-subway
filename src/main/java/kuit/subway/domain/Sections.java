@@ -80,11 +80,7 @@ public class Sections {
         // 기존 구간보다 크거나 같은 거리의 새로운 구간을 사이에 추가할 수 없다.
         validateAddSectionDistance(oldSection, newSection);
         // 검증을 통과한다면 추가한다.
-        int indexOfOldSection = IntStream.range(0, sections.size()) // oldSection 의 순서를 찾아낸다.
-                .filter(index -> sections.get(index)
-                        .equals(oldSection))
-                .boxed().findFirst().orElseThrow(NotFoundSectionException::new);
-        sections.add(indexOfOldSection, newSection); // oldSection 자리에 새로운 구간을 추가하고 oldSection 을 적절히 수정한다.
+        sections.add(newSection); // oldSection 자리에 새로운 구간을 추가하고 oldSection 을 적절히 수정한다.
         oldSection.updateUpStation(newSection.getDownStation(), oldSection.getDistance() - newSection.getDistance());
     }
 
