@@ -39,7 +39,7 @@ public class ControllerAdvice {
                 request.getRequestURI(),
                 e.getMessage());
         return ResponseEntity.internalServerError()
-                .body(new ErrorResponse(9999, "일시적으로 접속이 원활하지 않습니다."));
+                .body(ErrorResponse.from(9999, "일시적으로 접속이 원활하지 않습니다."));
     }
 
 }

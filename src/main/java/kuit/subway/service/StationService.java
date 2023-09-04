@@ -2,6 +2,7 @@ package kuit.subway.service;
 
 import kuit.subway.domain.Station;
 import kuit.subway.dto.response.CreateStationResponse;
+import kuit.subway.dto.response.DeleteStationResponse;
 import kuit.subway.dto.response.StationDto;
 import kuit.subway.dto.response.StationListResponse;
 import kuit.subway.exception.badrequest.DuplicatedStationNameException;
@@ -26,23 +27,20 @@ public class StationService {
                 Station.builder()
                         .name(name)
                         .build());
-        return new CreateStationResponse(savedStation.getId());
+        return CreateStationResponse.of(savedStation);
     }
 
     public StationListResponse getStations() {
         List<Station> savedStations = stationRepository.findAll();
-        List<StationDto> stations = savedStations.stream().map(
-                StationDto::from
-        ).toList();
-        return new StationListResponse(stations);
+        return StationListResponse.from(savedStations);
     }
 
     @Transactional
-    public Long deleteStation(Long id) {
+    public DeleteStationResponse deleteStation(Long id) {
         Station station = stationRepository.findById(id)
                 .orElseThrow(NotFoundStationException::new);
         stationRepository.delete(station);
-        return id;
+        return DeleteStationResponse.from(station);
     }
 
     private void validateDuplicatedName(String name) {

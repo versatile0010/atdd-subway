@@ -1,19 +1,19 @@
 package kuit.subway.dto.response;
 
 import kuit.subway.domain.Line;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
-@NoArgsConstructor
-@Data
+@Builder
+@AllArgsConstructor
+@Getter
 public class CreateLineResponse {
     private Long id;
 
-    private CreateLineResponse(Line line) {
-        this.id = line.getId();
-    }
-
     public static CreateLineResponse from(Line line) {
-        return new CreateLineResponse(line);
+        return CreateLineResponse.builder()
+                .id(line.getId())
+                .build();
     }
 }

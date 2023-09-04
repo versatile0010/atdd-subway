@@ -1,12 +1,19 @@
 package kuit.subway.dto.response;
 
+import kuit.subway.domain.Station;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
-@Data
+@Getter
 public class DeleteStationResponse {
     private Long id;
+
+    public static DeleteStationResponse from(Station station) {
+        return DeleteStationResponse.builder()
+                .id(station.getId())
+                .build();
+    }
 }

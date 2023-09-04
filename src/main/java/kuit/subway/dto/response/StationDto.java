@@ -1,23 +1,19 @@
 package kuit.subway.dto.response;
 
 import kuit.subway.domain.Station;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
-@Data
+@Getter
 public class StationDto {
     private Long id;
     private String name;
 
-    private StationDto(Station station) {
-        this.id = station.getId();
-        this.name = station.getName();
-    }
-
     public static StationDto from(Station station) {
-        return new StationDto(station);
+        return StationDto.builder()
+                .id(station.getId())
+                .name(station.getName())
+                .build();
     }
 }

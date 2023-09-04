@@ -71,7 +71,7 @@ public class LineService {
         Line line = lineRepository.findById(id)
                 .orElseThrow(NotFoundLineException::new);
         line.updateLine(request);
-        return ModifyLineResponse.from(line.getId());
+        return ModifyLineResponse.from(line);
     }
 
     @Transactional
@@ -79,7 +79,7 @@ public class LineService {
         Line line = lineRepository.findById(id)
                 .orElseThrow(NotFoundLineException::new);
         lineRepository.delete(line);
-        return new DeleteLineResponse(id);
+        return DeleteLineResponse.from(line);
     }
 
     @Transactional
@@ -111,6 +111,6 @@ public class LineService {
         line.removeSection(downStation.getId()); // section 제거
         // 현재 요구사항에서는 하행종점역만 삭제 가능하므로 stationId 를 인자로 받도록 하였음.
         // 하행종점역을 삭제했으므로 해당 라인의 하행종점을 갱신
-        return new DeleteSectionResponse(request.getSectionId()); // 제거한 section id 를 반환
+        return DeleteSectionResponse.from(section); // 제거한 section id 를 반환
     }
 }
