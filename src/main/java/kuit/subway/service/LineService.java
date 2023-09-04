@@ -17,12 +17,14 @@ import kuit.subway.repository.LineRepository;
 import kuit.subway.repository.SectionRepository;
 import kuit.subway.repository.StationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
@@ -38,12 +40,12 @@ public class LineService {
                 .orElseThrow(NotFoundStationException::new); // 하행역
         Station upStation = stationRepository.findById(request.getUpStationId())
                 .orElseThrow(NotFoundStationException::new); // 상행역
-        if(Objects.equals(downStation.getId(), upStation.getId())){
+        if (Objects.equals(downStation.getId(), upStation.getId())) {
             throw new InvalidCreateLineException();
         }
         Line line = lineRepository.save(new Line(request.getName(), request.getDistance(), request.getColor()));
 
-        Section section = Section.from(downStation, upStation, line); // 구간 생성
+        Section section = Section.from(downStation, upStation, line, request.getDistance()); // 구간 생성
         line.addSection(section); // 해당 노선에 대하여 구간 추가 및 검증
 
         sectionRepository.save(section);
@@ -61,7 +63,7 @@ public class LineService {
         Line line = lineRepository.findById(id)
                 .orElseThrow(NotFoundLineException::new);
         List<Station> stations = line.getStations();
-        return LineInfoResponse.from(line, stations);
+        return LineInfoResponse.of(line, stations);
     }
 
     @Transactional
@@ -69,7 +71,7 @@ public class LineService {
         Line line = lineRepository.findById(id)
                 .orElseThrow(NotFoundLineException::new);
         line.updateLine(request);
-        return ModifyLineResponse.from(line.getId());
+        return ModifyLineResponse.from(line);
     }
 
     @Transactional
@@ -77,7 +79,7 @@ public class LineService {
         Line line = lineRepository.findById(id)
                 .orElseThrow(NotFoundLineException::new);
         lineRepository.delete(line);
-        return new DeleteLineResponse(id);
+        return DeleteLineResponse.from(line);
     }
 
     @Transactional
@@ -92,11 +94,10 @@ public class LineService {
         Station upStation = stationRepository.findById(upStationId)
                 .orElseThrow(NotFoundStationException::new);
 
-        Section section = Section.from(downStation, upStation, line);
-        line.addSection(section); // 해당 노선에 대하여 구간 추가 및 검증
+        Section section = Section.from(downStation, upStation, line, request.getDistance());
 
-        sectionRepository.save(section);
-        return new CreateSectionResponse(section.getId());
+        line.addSection(section); // 해당 노선에 대하여 구간 추가 및 검증
+        return CreateSectionResponse.of(line, line.getStations());
     }
 
     @Transactional
@@ -110,6 +111,6 @@ public class LineService {
         line.removeSection(downStation.getId()); // section 제거
         // 현재 요구사항에서는 하행종점역만 삭제 가능하므로 stationId 를 인자로 받도록 하였음.
         // 하행종점역을 삭제했으므로 해당 라인의 하행종점을 갱신
-        return new DeleteSectionResponse(request.getSectionId()); // 제거한 section id 를 반환
+        return DeleteSectionResponse.from(section); // 제거한 section id 를 반환
     }
 }

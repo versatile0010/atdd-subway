@@ -2,15 +2,16 @@ package kuit.subway.dto.response;
 
 import kuit.subway.domain.Line;
 import kuit.subway.domain.Station;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @AllArgsConstructor
-@ToString
+@Getter
 public class LineInfoResponse {
     private Long id;
     private String name;
@@ -19,19 +20,14 @@ public class LineInfoResponse {
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
 
-    private LineInfoResponse(Line line, List<Station> stations) {
-        this.id = line.getId();
-        this.name = line.getName();
-        this.color = line.getColor();
-        this.createdDate = line.getCreatedDate();
-        this.modifiedDate = line.getModifiedDate();
-        this.stations = stations
-                .stream()
-                .map(StationDto::from)
-                .toList();
-    }
-
-    public static LineInfoResponse from(Line line, List<Station> stations) {
-        return new LineInfoResponse(line, stations);
+    public static LineInfoResponse of(Line line, List<Station> stations) {
+        return LineInfoResponse.builder()
+                .id(line.getId())
+                .name(line.getName())
+                .color(line.getColor())
+                .createdDate(line.getCreatedDate())
+                .modifiedDate(line.getModifiedDate())
+                .stations(stations.stream().map(StationDto::from).toList())
+                .build();
     }
 }

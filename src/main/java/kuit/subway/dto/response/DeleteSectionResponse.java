@@ -1,12 +1,17 @@
 package kuit.subway.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import kuit.subway.domain.Section;
+import lombok.*;
 
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
-@Data
+@Getter
 public class DeleteSectionResponse {
     private Long id;
+
+    public static DeleteSectionResponse from(Section section) {
+        return DeleteSectionResponse.builder()
+                .id(section.getId())
+                .build();
+    }
 }

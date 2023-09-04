@@ -39,8 +39,7 @@ public class StationController {
     @DeleteMapping("/{id}")
     public ResponseEntity<DeleteStationResponse> deleteStation(@PathVariable("id") Long id) {
         log.info("[지하철 삭제(id=" + id + ") API 를 호출합니다.");
-        Long deletedId = stationService.deleteStation(id);
-        DeleteStationResponse response = new DeleteStationResponse(deletedId);
+        DeleteStationResponse response = stationService.deleteStation(id);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .body(response);

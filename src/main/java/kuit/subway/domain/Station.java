@@ -5,6 +5,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.Hibernate;
+
+import java.util.Objects;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -20,5 +23,28 @@ public class Station extends BaseTimeEntity {
     @Builder
     public Station(String name) {
         this.name = name;
+    }
+
+    private Station(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public static Station createMock(Long id, String name) {
+        return new Station(id, name);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Station)) {
+            return false;
+        }
+        Station station = (Station) o;
+        return station.getId().equals(id) && station.getName().equals(name);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.intValue() : 0;
     }
 }

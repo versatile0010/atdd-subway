@@ -27,7 +27,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
 
     @BeforeEach
     public void 테스트를_위한_이호선_요청데이터_생성() {
-        이호선_데이터 = 지하철_노선_생성_데이터_만들기("2호선", "green", 10, 1L, 2L);
+        이호선_데이터 = 지하철_노선_생성_데이터_만들기("2호선", "green", 10L, 1L, 2L);
     }
 
     @Description("지하철 노선 요청이 올바르면, 노선이 생성되어야 한다.")
@@ -48,7 +48,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
         // given 강남역과 서초역을 생성하고
         강남역_서초역_생성하기();
         // when 상행 종점역과 하행 종점역을 중복하여 노선 생성 요청을 보내면
-        CreateLineRequest 잘못된_이호선_데이터 = 지하철_노선_생성_데이터_만들기("2호선", "green", 10, 강남역_아이디, 강남역_아이디);
+        CreateLineRequest 잘못된_이호선_데이터 = 지하철_노선_생성_데이터_만들기("2호선", "green", 10L, 강남역_아이디, 강남역_아이디);
         ExtractableResponse<Response> extract = 지하철_노선_생성하기(잘못된_이호선_데이터);
         // then 거절되어야 한다.
         응답결과_검증하기(extract, HttpStatus.BAD_REQUEST);
@@ -72,7 +72,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
         // given 강남역과 서초역을 생성하고
         강남역_서초역_생성하기();
         // when 최소 길이보다 짧은 이름의 노선으로 생성 요청을 보내면
-        CreateLineRequest 짧은이름의_노선_데이터 = 지하철_노선_생성_데이터_만들기("짧음", "green", 10, 강남역_아이디, 서초역_아이디);
+        CreateLineRequest 짧은이름의_노선_데이터 = 지하철_노선_생성_데이터_만들기("짧음", "green", 10L, 강남역_아이디, 서초역_아이디);
         ExtractableResponse<Response> extract = 지하철_노선_생성하기(짧은이름의_노선_데이터);
         // then 거절되어야 한다.
         응답결과_검증하기(extract, INVALID_INPUT_STATUS_CODE);
@@ -114,7 +114,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
         지하철_역_생성하기(건대입구역_데이터);
         Long 건대입구역_아이디 = 4L;
 
-        ModifyLineRequest 노선_수정_데이터 = 지하철_노선_수정_데이터_만들기("경춘선", "red", 99, 어린이대공원역_아이디, 건대입구역_아이디);
+        ModifyLineRequest 노선_수정_데이터 = 지하철_노선_수정_데이터_만들기("경춘선", "red", 99L, 어린이대공원역_아이디, 건대입구역_아이디);
         ExtractableResponse<Response> extract = 지하철_노선_수정하기(노선_수정_데이터, 1L);
 
         // 수정되어야 한다.
@@ -126,7 +126,7 @@ public class LineAcceptanceTest extends AcceptanceTest {
     @Test
     public void 존재하지_않는_지하철_노선_수정_테스트() {
         // when & given 존재하지 않는 다른 노선을 수정하려고 요청하면
-        ModifyLineRequest 노선_수정_데이터 = 지하철_노선_수정_데이터_만들기("경춘선", "red", 99, 1L, 2L);
+        ModifyLineRequest 노선_수정_데이터 = 지하철_노선_수정_데이터_만들기("경춘선", "red", 99L, 1L, 2L);
         ExtractableResponse<Response> extract = 지하철_노선_수정하기(노선_수정_데이터, 99L);
         // 거절되어야 한다.
         응답결과_검증하기(extract, HttpStatus.NOT_FOUND);

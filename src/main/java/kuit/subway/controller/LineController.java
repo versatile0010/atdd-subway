@@ -64,7 +64,7 @@ public class LineController {
         log.info("노선{id=" + id + "} 구간 추가 API 를 호출합니다.");
         CreateSectionResponse response = lineService.addSection(request, id);
         return ResponseEntity.created(
-                URI.create("/lines/" + id + "/sections" + response.getId())
+                URI.create("/lines/" + id + "/sections")
         ).body(response);
     }
 

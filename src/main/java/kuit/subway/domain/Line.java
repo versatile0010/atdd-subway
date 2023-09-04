@@ -20,12 +20,12 @@ public class Line extends BaseTimeEntity {
     private Long id;
     @Column(length = 20, nullable = false)
     private String name;
-    private int distance;
+    private Long distance;
     private String color;
     @Embedded
     private Sections sections = new Sections();
 
-    public Line(String name, int distance, String color) {
+    public Line(String name, Long distance, String color) {
         this.name = name;
         this.distance = distance;
         this.color = color;
@@ -54,5 +54,16 @@ public class Line extends BaseTimeEntity {
 
     public List<Station> getStations() {
         return sections.getStations();
+    }
+
+    private Line(Long id, String name, Long distance, String color) {
+        this.id = id;
+        this.name = name;
+        this.distance = distance;
+        this.color = color;
+    }
+
+    public static Line createMock(Long id, String name, Long distance, String color) {
+        return new Line(id, name, distance, color);
     }
 }
