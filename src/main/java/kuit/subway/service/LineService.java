@@ -63,7 +63,7 @@ public class LineService {
         Line line = lineRepository.findById(id)
                 .orElseThrow(NotFoundLineException::new);
         List<Station> stations = line.getStations();
-        return LineInfoResponse.from(line, stations);
+        return LineInfoResponse.of(line, stations);
     }
 
     @Transactional

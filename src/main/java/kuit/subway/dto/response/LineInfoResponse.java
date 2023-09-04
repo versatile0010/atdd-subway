@@ -31,7 +31,7 @@ public class LineInfoResponse {
                 .toList();
     }
 
-    public static LineInfoResponse from(Line line, List<Station> stations) {
+    public static LineInfoResponse of(Line line, List<Station> stations) {
         return new LineInfoResponse(line, stations);
     }
 }
