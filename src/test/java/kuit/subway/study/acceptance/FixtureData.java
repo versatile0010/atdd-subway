@@ -28,6 +28,10 @@ public class FixtureData {
         return new DeleteSectionRequest(sectionId);
     }
 
+    public static DeleteSectionRequestV2 지하철_구간_삭제_데이터_만들기V2(Long downStationId, Long upStationId) {
+        return new DeleteSectionRequestV2(downStationId, upStationId);
+    }
+
     public static void 강남역_서초역_생성하기() {
         CreateStationRequest 강남역 = 지하철_역_생성_데이터_만들기("강남역");
         CreateStationRequest 서초역 = 지하철_역_생성_데이터_만들기("서초역");
