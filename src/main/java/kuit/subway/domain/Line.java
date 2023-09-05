@@ -51,6 +51,9 @@ public class Line extends BaseTimeEntity {
     public void removeSection(Long stationId) {
         sections.remove(stationId);
     }
+    public void removeSectionV2(Section section) {
+        sections.removeV2(section);
+    }
 
     public List<Station> getStations() {
         return sections.getStations();

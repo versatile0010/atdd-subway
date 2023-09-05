@@ -134,6 +134,38 @@ public class Sections {
         sections.remove(lastSectionIdx); // 가장 끝 구간을 삭제함. (현재 요구 사항에서는 마지막 구간만 제거 가능)
     }
 
+    public void removeV2(Section section) {
+        if (sections.size() <= 1) {
+            // 지하철 노선에 상행 종점역과 하행 종점역만 있는 경우(구간이 1개인 경우) 역을 삭제할 수 없다.
+            throw new SingleSectionRemoveException();
+        }
+
+        List<Station> stations = getStations(); // 1. 현재 지하철 노선의 정렬된 역 목록을 가져와서
+        validateDeleteSection(stations, section); // 2. 해당 section 을 추가할 수 있는 지 검증
+        if (isSectionLast(section, stations)) { // case A. 하행 종점 구간 삭제
+            deleteSectionAtFirst(stations, section);
+            return;
+        }
+        if (isSectionFirst(section, stations)) { // case B. 상행 종점 구간 삭제
+            deleteSectionAtLast(stations, section);
+            return;
+        }
+        // case C. 사이 구간 삭제
+        deleteSectionAtBetween(stations, section);
+    }
+    public void validateDeleteSection(List<Station> stations, Section section){
+        // TODO: validate logic
+    }
+    public void deleteSectionAtFirst(List<Station> stations, Section section){
+        // TODO: implement logic
+    }
+    public void deleteSectionAtLast(List<Station> stations, Section section){
+        // TODO: implement logic
+    }
+    public void deleteSectionAtBetween(List<Station> stations, Section section){
+        // TODO: implement logic
+    }
+
 
     public List<Station> getStations() {
         List<Station> stations = new ArrayList<>();

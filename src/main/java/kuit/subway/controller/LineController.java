@@ -1,10 +1,7 @@
 package kuit.subway.controller;
 
 import jakarta.validation.Valid;
-import kuit.subway.dto.request.CreateLineRequest;
-import kuit.subway.dto.request.CreateSectionRequest;
-import kuit.subway.dto.request.DeleteSectionRequest;
-import kuit.subway.dto.request.ModifyLineRequest;
+import kuit.subway.dto.request.*;
 import kuit.subway.dto.response.*;
 import kuit.subway.service.LineService;
 import lombok.RequiredArgsConstructor;
@@ -74,6 +71,17 @@ public class LineController {
             @RequestBody DeleteSectionRequest request) {
         log.info("노선{id=" + id + "} 구간 삭제 API 를 호출합니다.");
         DeleteSectionResponse response = lineService.removeSection(request, id);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(response);
+    }
+
+    @DeleteMapping("/{id}/v2/sections")
+    public ResponseEntity<DeleteSectionResponse> deleteSectionV2(
+            @PathVariable("id") Long id,
+            @RequestBody DeleteSectionRequestV2 request) {
+        log.info("노선{id=" + id + "} 구간 삭제 V2 API 를 호출합니다.");
+        DeleteSectionResponse response = lineService.removeSectionV2(request, id);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .body(response);

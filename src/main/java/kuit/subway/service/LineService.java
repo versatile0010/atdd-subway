@@ -3,10 +3,7 @@ package kuit.subway.service;
 import kuit.subway.domain.Line;
 import kuit.subway.domain.Section;
 import kuit.subway.domain.Station;
-import kuit.subway.dto.request.CreateLineRequest;
-import kuit.subway.dto.request.CreateSectionRequest;
-import kuit.subway.dto.request.DeleteSectionRequest;
-import kuit.subway.dto.request.ModifyLineRequest;
+import kuit.subway.dto.request.*;
 import kuit.subway.dto.response.*;
 import kuit.subway.exception.badrequest.DuplicatedLineNameException;
 import kuit.subway.exception.badrequest.InvalidCreateLineException;
@@ -112,5 +109,18 @@ public class LineService {
         // 현재 요구사항에서는 하행종점역만 삭제 가능하므로 stationId 를 인자로 받도록 하였음.
         // 하행종점역을 삭제했으므로 해당 라인의 하행종점을 갱신
         return DeleteSectionResponse.from(section); // 제거한 section id 를 반환
+    }
+
+    @Transactional
+    public DeleteSectionResponse removeSectionV2(DeleteSectionRequestV2 request, Long id) {
+        // request body 로 section id 를 받고, path parameter 으로 line id 를 받는다.
+        Section targetSection = sectionRepository.findByDownStationIdAndUpStationId(request.getDownStationId(), request.getUpStationId())
+                .orElseThrow(NotFoundSectionException::new);
+        Line line = lineRepository.findById(id)
+                .orElseThrow(NotFoundLineException::new);
+        line.removeSectionV2(targetSection); // section 제거
+        // 현재 요구사항에서는 하행종점역만 삭제 가능하므로 stationId 를 인자로 받도록 하였음.
+        // 하행종점역을 삭제했으므로 해당 라인의 하행종점을 갱신
+        return DeleteSectionResponse.from(targetSection); // 제거한 section id 를 반환
     }
 }

@@ -21,6 +21,6 @@ public class SectionStep {
     }
 
     public static ExtractableResponse<Response> 지하철_구간_삭제하기V2(DeleteSectionRequestV2 body, Long id) {
-        return delete(LINE_PATH + "/" + id + SECTION_PATH, body);
+        return delete(LINE_PATH + "/" + id + "/v2" + SECTION_PATH, body);
     }
 }
